@@ -1,11 +1,11 @@
 # Responsive Layout Builder
 
 
-## 1. Overview
+## Overview
 
 The Responsive Layout Builder is a web tool that lets developers quickly create and test page layouts. You can split the screen into sections, adjust them, and instantly see the generated code in JSX + Tailwind or HTML + CSS. Future updates will add breakpoint-specific settings(sm, md, lg) so layouts adapt better on different devices.
 
-## 2. What It Can Do
+## What It Can Do
 
 - Interactive canvas with split panes (horizontal / vertical)
 
@@ -33,7 +33,7 @@ The Responsive Layout Builder is a web tool that lets developers quickly create 
 
 - Copy generated code with one click
 
-## 3. How It Works
+## How It Works
 
 - State Tree (layoutSlice): A binary tree of LeafNode and SplitNode
 
@@ -51,7 +51,7 @@ The Responsive Layout Builder is a web tool that lets developers quickly create 
 
 - Code Output: two code generators (JSX + HTML/CSS) read from the tree
 
-## 4. Running Locally
+## Running Locally
 
 ```bash
 npm install
@@ -61,13 +61,13 @@ npm run dev
 
 The builder is at: http://localhost:3000/home
 
-## 5. Roadmap / TODO
+## Roadmap / TODO
 
 - [ ] Undo / Redo history (e.g., last 50 actions)
 - [ ] Breakpoint model (different layout for each screen size)
 - [ ] LocalStorage save (auto restore last layout)
 
-## 6. Contributing
+## Contributing
 
 Contributions welcome! Please fork the repo and submit a PR.
 
