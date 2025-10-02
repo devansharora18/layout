@@ -144,6 +144,44 @@ const layoutSlice = createSlice({
       state.root = updateNode(state.root, a, (n) => (isLeaf(n) ? { ...n, label: nb.label, color: nb.color } : n));
       state.root = updateNode(state.root, b, (n) => (isLeaf(n) ? { ...n, label: tLabel, color: tColor } : n));
     },
+    removeLeaf(state, action: PayloadAction<{ leafId: string }>) {
+      const { leafId } = action.payload;
+
+      // If root is the only leaf, do not remove (ensure at least one pane)
+      if (state.root.id === leafId && isLeaf(state.root)) {
+        return; // ignore removing the last remaining pane
+      }
+
+      function prune(node: NodeModel): NodeModel | null {
+        if (isLeaf(node)) {
+          return node.id === leafId ? null : node;
+        }
+        // split
+        const left = prune(node.children[0]);
+        const right = prune(node.children[1]);
+        if (left && right) {
+          // both remain
+          return { ...node, children: [left, right] as [NodeModel, NodeModel] };
+        }
+        if (left && !right) return left; // collapse
+        if (!left && right) return right; // collapse
+        return null; // both removed (should not practically happen)
+      }
+
+      const newRoot = prune(state.root);
+      if (!newRoot) return;
+      state.root = newRoot;
+
+      // Maintain a valid selectedLeafId
+      if (state.selectedLeafId === leafId) {
+        // find first leaf
+        function firstLeaf(n: NodeModel): string | null {
+          if (isLeaf(n)) return n.id;
+            return firstLeaf(n.children[0]) ?? firstLeaf(n.children[1]);
+        }
+        state.selectedLeafId = firstLeaf(state.root);
+      }
+    },
   },
 });
 
@@ -155,6 +193,7 @@ export const {
   setSplitSizes,
   resetSplit,
   rearrangeLeaves,
+  removeLeaf,
 } = layoutSlice.actions;
 
 export default layoutSlice.reducer;

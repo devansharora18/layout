@@ -13,6 +13,7 @@ export default function SplitView(props: {
   onLeafDragStart: (leafId: string) => void;
   onLeafDrop: (leafId: string) => void;
   onResetSplit: (splitId: string) => void;
+  onDeleteLeaf: (leafId: string) => void;
 }) {
   const { split } = props;
   const isRow = split.orientation === "row";
@@ -85,6 +86,7 @@ function RenderNode(props: {
   onLeafDragStart: (leafId: string) => void;
   onLeafDrop: (leafId: string) => void;
   onResetSplit: (splitId: string) => void;
+  onDeleteLeaf: (leafId: string) => void;
 }) {
   const { node } = props;
   if (isLeaf(node)) {
@@ -95,6 +97,7 @@ function RenderNode(props: {
         onSelect={() => props.onSelectLeaf(node.id)}
         onDragStart={() => props.onLeafDragStart(node.id)}
         onDrop={() => props.onLeafDrop(node.id)}
+        onDelete={() => props.onDeleteLeaf(node.id)}
       />
     );
   }

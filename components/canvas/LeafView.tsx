@@ -9,12 +9,14 @@ export default function LeafView({
   onSelect,
   onDragStart,
   onDrop,
+  onDelete,
 }: {
   leaf: LeafNode;
   selected: boolean;
   onSelect: () => void;
   onDragStart: () => void;
   onDrop: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <div
@@ -45,7 +47,19 @@ export default function LeafView({
         }}
       >
         <span className="text-gray-700">{leaf.label}</span>
-        <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: leaf.color }} />
+        <button
+          type="button"
+          className="inline-flex items-center justify-center w-4 h-4 rounded-full cursor-pointer transition-transform text-[13px] leading-none text-white font-bold"
+          aria-label="Delete pane"
+          title="Delete pane"
+          style={{ backgroundColor: leaf.color }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete?.();
+          }}
+        >
+          ×
+        </button>
       </div>
       <div
         className="flex-1 flex items-center justify-center text-white font-semibold"
