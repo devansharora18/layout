@@ -1,8 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
+import layout from "./layoutSlice";
 
 export const store = configureStore({
   reducer: {
-    // reducers will go here
+    layout,
   },
 });
 
