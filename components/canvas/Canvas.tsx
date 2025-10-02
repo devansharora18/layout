@@ -195,7 +195,7 @@ export default function Canvas() {
           />
         ) : (
           <SplitView
-            split={root as any}
+            split={root as SplitNode}
             selectedLeafId={selectedLeafId}
             onSelectLeaf={(id) => dispatch(selectLeafAction(id))}
             onGutterMouseDown={onGutterMouseDown}
