@@ -29,12 +29,12 @@ export default function Home() {
       <div className="container mx-auto px-4 py-16 max-w-7xl">
         <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent mb-6">
-            Layout Builder
+            Responsive Layout Builder
           </h1>
-          <p className="text-lg text-gray-100/90 mb-8 max-w-2xl">
-            Create, visualize, and export flexible layouts with an interactive
-            canvas. Split, resize, and rearrange divs to build your perfect
-            layout structure.
+          <p className="text-lg text-gray-100/90 mb-8 max-w-3xl">
+            A web tool that lets developers quickly create and test page
+            layouts. Split the screen into sections, adjust them, and instantly
+            see generated code in JSX + Tailwind or HTML + CSS.
           </p>
           <div className="flex gap-4">
             <Link
@@ -61,31 +61,45 @@ export default function Home() {
               Interactive Canvas
             </h3>
             <p className="text-gray-200/90">
-              Click to select, drag borders to resize, and rearrange divs with
-              intuitive drag-and-drop.
+              Split panes horizontally or vertically, add new panes, resize by
+              dragging, reset with double-click, and rearrange panes by dragging
+              onto another.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20 shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-2">
-              Flexible Layouts
+              Real-Time Code
             </h3>
             <p className="text-gray-200/90">
-              Create complex layouts with horizontal and vertical splits. Adjust
-              sizes with precision.
+              Instantly generate JSX + Tailwind or HTML + CSS with proportional
+              flex values. Copy the output with one click.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20 shadow-lg">
             <h3 className="text-xl font-semibold text-white mb-2">
-              Export Code
+              Developer-Friendly
             </h3>
             <p className="text-gray-200/90">
-              Generate clean JSX + Tailwind or HTML + CSS code for your layouts
-              instantly.
+              Uses a binary state tree for layout management. Actions include
+              split, resize, rearrange, delete, and reset. Simple, fast, and
+              easy to extend.
             </p>
           </div>
         </div>
+
+        {/* Roadmap Section */}
+        <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl border border-white/20 shadow-lg">
+          <h2 className="text-2xl font-bold text-white mb-4">Features to be Impemented</h2>
+          <ul className="text-gray-200/90 list-disc list-inside space-y-2 text-left">
+            <li>Undo / Redo history (last 50 actions)</li>
+            <li>Breakpoint model (layouts per screen size)</li>
+            <li>LocalStorage save & auto-restore</li>
+          </ul>
+        </div>
+
+        
       </div>
     </main>
   );
