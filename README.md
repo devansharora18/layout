@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Responsive Layout Builder
 
-## Getting Started
 
-First, run the development server:
+## 1. Overview
+
+The Responsive Layout Builder is a web tool that lets developers quickly create and test page layouts. You can split the screen into sections, adjust them, and instantly see the generated code in JSX + Tailwind or HTML + CSS. Future updates will add breakpoint-specific settings(sm, md, lg) so layouts adapt better on different devices.
+
+## 2. What It Can Do
+
+- Interactive canvas with split panes (horizontal / vertical)
+
+- Add a new pane by splitting the selected one
+
+- Choose row or column orientation for the next split
+
+- Resize panes by dragging the divider (live updates with proportional sizing)
+
+- Double-click divider to reset split to 50/50
+
+- Select panes (highlighted visually)
+
+- Rearrange panes by dragging one pane onto another (swaps label and color)
+
+- Delete a pane (parent collapses automatically, root is protected)
+
+- Reset everything back to a single pane
+
+- Real-time code generation:
+
+  	- JSX + Tailwind: flex markup with flex ratios
+
+  	- HTML + CSS: auto-generated class names with proportional flex values
+
+- Copy generated code with one click
+
+## 3. How It Works
+
+- State Tree (layoutSlice): A binary tree of LeafNode and SplitNode
+
+	- SplitNode: has orientation (row | col) and sizes [a,b]
+
+	- LeafNode: stores label and color (for visuals only)
+
+- Actions: split, resize, rearrange, delete, reset
+
+- Canvas Rendering: recursive components (SplitView and LeafView) render the layout
+
+- Resizing: drag events adjust pane sizes (kept between 0.1–0.9)
+
+- Rearranging: swaps colors/labels instead of restructuring nodes (simpler for now)
+
+- Code Output: two code generators (JSX + HTML/CSS) read from the tree
+
+## 4. Running Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The builder is at: http://localhost:3000/home
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 5. Roadmap / TODO
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [ ] Undo / Redo history (e.g., last 50 actions)
+- [ ] Breakpoint model (different layout for each screen size)
+- [ ] LocalStorage save (auto restore last layout)
 
-## Learn More
+## 6. Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions welcome! Please fork the repo and submit a PR.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Proposed flow:
+1. Open an issue describing the enhancement.
+2. Discuss and refine the approach.
+3. Submit PR with clear before/after notes + screenshots.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Quick Start (TL;DR)
+```
+npm i
+npm run dev
+open http://localhost:3000/home
+```
+
+Enjoy experimenting and feel free to suggest improvements!
