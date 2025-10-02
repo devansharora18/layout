@@ -2,7 +2,7 @@
 
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
-import { type NodeModel, isSplit, isLeaf } from "@/store/layoutSlice";
+import { type NodeModel, isLeaf } from "@/store/layoutSlice";
 import { useState } from "react";
 
 export default function CodeOutput() {

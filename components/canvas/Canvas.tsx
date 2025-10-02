@@ -171,7 +171,7 @@ export default function Canvas() {
         Next split: {nextOrientation === "row" ? "Side-by-side" : "Stacked"}
       </button>
       <button
-        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+        className="px-3 py-1 rounded bg-gray-800 hover:bg-gray-900"
         onClick={reset}
       >
         Reset
@@ -181,7 +181,7 @@ export default function Canvas() {
   );
 
   return (
-    <div className="w-4/5 h-96 flex flex-col gap-3">
+    <div className="w-4/5 h-[80vh] flex flex-col gap-3">
       {toolbar}
       <div className="flex-1 border rounded-md bg-gray-50 overflow-hidden">
         {isLeaf(root) ? (
