@@ -105,13 +105,13 @@ ${indent}</div>`;
   };
 
   return (
-    <div className="w-4/5 flex flex-col gap-3 mt-6">
-      <div className="flex gap-2 border-b">
+    <div className="w-full max-w-5xl flex flex-col gap-3 mt-4">
+      <div className="flex gap-2 border-b border-white/20">
         <button
           className={`px-4 py-2 font-semibold ${
             activeTab === "jsx"
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-600 hover:text-gray-900"
+              ? "border-b-2 border-indigo-400 text-indigo-300"
+              : "text-gray-300 hover:text-white"
           }`}
           onClick={() => setActiveTab("jsx")}
         >
@@ -120,8 +120,8 @@ ${indent}</div>`;
         <button
           className={`px-4 py-2 font-semibold ${
             activeTab === "html"
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-600 hover:text-gray-900"
+              ? "border-b-2 border-indigo-400 text-indigo-300"
+              : "text-gray-300 hover:text-white"
           }`}
           onClick={() => setActiveTab("html")}
         >
@@ -132,11 +132,11 @@ ${indent}</div>`;
       <div className="relative">
         <button
           onClick={() => copyToClipboard(activeTab === "jsx" ? jsxCode : htmlCode)}
-          className="absolute top-2 right-2 px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-800 z-10"
+          className="absolute top-2 right-2 px-3 py-1 text-xs bg-white/15 backdrop-blur-md border border-white/25 text-white rounded hover:bg-white/25 z-10"
         >
           Copy
         </button>
-        <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">
+        <pre className="custom-scrollbar bg-black/60 backdrop-blur-xl text-indigo-100 p-4 rounded-xl overflow-x-auto max-h-96 overflow-y-auto border border-white/15 shadow-inner text-xs leading-relaxed">
           <code>{activeTab === "jsx" ? jsxCode : htmlCode}</code>
         </pre>
       </div>

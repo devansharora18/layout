@@ -43,13 +43,16 @@ export default function SplitView(props: {
 
       {/* Gutter */}
       <div
-        className="bg-gray-300 hover:bg-gray-400 transition-colors flex-shrink-0 select-none"
+        className="flex-shrink-0 select-none group"
         style={{
           width: isRow ? gutterSize : "100%",
           height: isRow ? "100%" : gutterSize,
           cursor: axisCursor,
           userSelect: "none",
           touchAction: "none",
+          background: isRow
+            ? "linear-gradient(to right, rgba(255,255,255,0.05), rgba(255,255,255,0.25), rgba(255,255,255,0.05))"
+            : "linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.25), rgba(255,255,255,0.05))",
         }}
         onMouseDown={(e) => {
           e.stopPropagation();

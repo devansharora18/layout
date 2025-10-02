@@ -157,33 +157,35 @@ export default function Canvas() {
 
   // Render
   const toolbar = (
-    <div className="flex items-center gap-2 p-2 rounded-md bg-gray-100 border text-sm">
+    <div className="flex items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-sm shadow-lg">
       <button
-        className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+        className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow hover:opacity-90 transition"
         onClick={handleAdd}
       >
         + Add div
       </button>
       <button
-        className="px-3 py-1 rounded bg-gray-800 text-white hover:bg-gray-900"
+        className="px-4 py-1.5 rounded-lg bg-white/15 text-white font-medium border border-white/25 hover:bg-white/25 transition"
         onClick={toggleNextOrientation}
       >
         Next split: {nextOrientation === "row" ? "Side-by-side" : "Stacked"}
       </button>
       <button
-        className="px-3 py-1 rounded bg-gray-800 hover:bg-gray-900"
+        className="px-4 py-1.5 rounded-lg bg-white/15 text-white font-medium border border-white/25 hover:bg-white/25 transition"
         onClick={reset}
       >
         Reset
       </button>
-      <span className="ml-2 text-gray-500">Tip: click a pane to select, drag borders to resize, drag headers to rearrange.</span>
+      <span className="ml-2 text-[11px] text-gray-200/80 hidden md:inline">
+        Tip: click a pane to select, drag borders to resize, drag headers to rearrange.
+      </span>
     </div>
   );
 
   return (
-    <div className="w-4/5 h-[80vh] flex flex-col gap-3">
+    <div className="w-full max-w-5xl h-[80vh] flex flex-col gap-4">
       {toolbar}
-      <div className="flex-1 border rounded-md bg-gray-50 overflow-hidden">
+      <div className="flex-1 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden shadow-inner">
         {isLeaf(root) ? (
           <LeafView
             leaf={root}
