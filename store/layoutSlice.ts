@@ -23,7 +23,8 @@ export type LayoutState = {
   root: NodeModel;
   selectedLeafId: string | null;
   nextOrientation: Orientation;
-  idSeq: number; // for generating labels/ids
+  idSeq: number; // for generating sequential leaf labels (Div 1, Div 2, ...)
+  splitSeq: number; // independent counter for split node ids
 };
 
 export function isSplit(n: NodeModel): n is SplitNode {
@@ -52,6 +53,7 @@ function initState(): LayoutState {
     selectedLeafId: "root",
     nextOrientation: "row",
     idSeq: 2, // next new leaf label will be Div 2
+    splitSeq: 1, // first split will be split-1
   };
 }
 
@@ -92,6 +94,7 @@ const layoutSlice = createSlice({
       state.selectedLeafId = s.selectedLeafId;
       state.nextOrientation = s.nextOrientation;
       state.idSeq = s.idSeq;
+      state.splitSeq = s.splitSeq;
     },
     splitSelected(state) {
       const sel = state.selectedLeafId;
@@ -109,13 +112,13 @@ const layoutSlice = createSlice({
         if (!isLeaf(n)) return n;
         const first: LeafNode = { ...n };
         const split: SplitNode = {
-          id: `split-${state.idSeq}`,
+          id: `split-${state.splitSeq}`,
           type: "split",
           orientation: state.nextOrientation,
           sizes: [0.5, 0.5],
           children: [first, newLeaf],
         };
-        state.idSeq += 1;
+        state.splitSeq += 1; // advance split id counter only
         return split;
       });
     },
