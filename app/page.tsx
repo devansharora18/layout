@@ -10,11 +10,11 @@ export default function Home() {
           colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
           mouseForce={20}
           cursorSize={100}
-          isViscous={true}
+          isViscous={false}
           viscous={30}
           iterationsViscous={32}
           iterationsPoisson={32}
-          resolution={0.5}
+          resolution={0.25}
           isBounce={false}
           autoDemo={true}
           autoSpeed={0.5}
