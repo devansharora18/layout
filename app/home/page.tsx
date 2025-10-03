@@ -1,32 +1,10 @@
 import Canvas from "@/components/canvas/Canvas";
 import CodeOutput from "@/components/codeOutput/CodeOutput";
 import Navigation from "@/components/ui/Navigation";
-import LiquidEther from "@/components/liquidEther/LiquidEther";
 
 export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* LiquidEther Background */}
-      <div className="absolute inset-0 -z-10 pointer-events-auto">
-        <LiquidEther
-          colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
-          mouseForce={20}
-          cursorSize={100}
-          isViscous={false}
-          viscous={30}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.25}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={0.3}
-          autoIntensity={1.5}
-          takeoverDuration={0.25}
-          autoResumeDelay={1000}
-          autoRampDuration={0.6}
-        />
-      </div>
-
       <Navigation />
 
       <main className="relative pt-16 min-h-screen flex flex-col">
