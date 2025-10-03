@@ -47,14 +47,44 @@ function randomColor() {
   return palette[Math.floor(Math.random() * palette.length)];
 }
 
-function initState(): LayoutState {
+export const LAYOUT_PERSIST_KEY = "layout-state-v1";
+
+function validateState(obj: any): obj is LayoutState {
+  if (!obj) return false;
+  if (typeof obj !== "object") return false;
+  if (!obj.root) return false;
+  if (!("idSeq" in obj) || !("splitSeq" in obj)) return false;
+  return true;
+}
+
+function loadPersistedState(): LayoutState | undefined {
+  try {
+    if (typeof window === "undefined") return undefined;
+    const raw = window.localStorage.getItem(LAYOUT_PERSIST_KEY);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw);
+    if (validateState(parsed)) return parsed;
+  } catch (e) {
+    // ignore corrupt data
+    console.warn("Ignoring corrupted layout state in localStorage");
+  }
+  return undefined;
+}
+
+function defaultState(): LayoutState {
   return {
     root: { id: "root", type: "leaf", label: "Div 1", color: randomColor() },
     selectedLeafId: "root",
     nextOrientation: "row",
-    idSeq: 2, // next new leaf label will be Div 2
-    splitSeq: 1, // first split will be split-1
+    idSeq: 2,
+    splitSeq: 1,
   };
+}
+
+function initState(): LayoutState {
+  const persisted = loadPersistedState();
+  if (persisted) return persisted;
+  return defaultState();
 }
 
 // Utilities to update/find nodes in tree
@@ -89,7 +119,12 @@ const layoutSlice = createSlice({
       state.nextOrientation = state.nextOrientation === "row" ? "col" : "row";
     },
     reset(state) {
-      const s = initState();
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.removeItem(LAYOUT_PERSIST_KEY);
+        } catch {}
+      }
+      const s = defaultState();
       state.root = s.root;
       state.selectedLeafId = s.selectedLeafId;
       state.nextOrientation = s.nextOrientation;

@@ -65,7 +65,6 @@ The builder is at: http://localhost:3000/home
 
 - [ ] Undo / Redo history (e.g., last 50 actions)
 - [ ] Breakpoint model (different layout for each screen size)
-- [ ] LocalStorage save (auto restore last layout)
 
 ## Contributing
 
