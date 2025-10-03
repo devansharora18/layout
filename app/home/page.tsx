@@ -1,26 +1,55 @@
 import Canvas from "@/components/canvas/Canvas";
 import CodeOutput from "@/components/codeOutput/CodeOutput";
+import Navigation from "@/components/ui/Navigation";
+import LiquidEther from "@/components/liquidEther/LiquidEther";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen overflow-hidden flex flex-col">
-
-      <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-10 w-full">
-        <header className="text-center space-y-4">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
-            Layout Builder
-          </h1>
-        </header>
-
-        <section className="flex flex-col items-center w-full gap-10">
-          <Canvas />
-          <CodeOutput />
-        </section>
-
-        <footer className="mt-4 text-xs text-gray-300/70">
-          Work in progress
-        </footer>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* LiquidEther Background */}
+      <div className="absolute inset-0 -z-10 pointer-events-auto">
+        <LiquidEther
+          colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+          mouseForce={20}
+          cursorSize={100}
+          isViscous={false}
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={0.25}
+          isBounce={false}
+          autoDemo={true}
+          autoSpeed={0.3}
+          autoIntensity={1.5}
+          takeoverDuration={0.25}
+          autoResumeDelay={1000}
+          autoRampDuration={0.6}
+        />
       </div>
-    </main>
+
+      <Navigation />
+
+      <main className="relative pt-16 min-h-screen flex flex-col">
+        <div className="container mx-auto px-4 py-8 flex flex-col items-center gap-8 w-full flex-1">
+          <header className="text-center space-y-4">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Layout Builder
+            </h1>
+            <p className="text-gray-300/80 text-lg max-w-2xl mx-auto">
+              Create responsive layouts visually. Split, resize, and rearrange panes to build your perfect layout.
+            </p>
+          </header>
+
+          <section className="flex flex-col items-center w-full gap-8 flex-1">
+            <Canvas />
+            <CodeOutput />
+          </section>
+
+          <footer className="mt-8 text-sm text-gray-400/70 text-center">
+            <p>Drag to split • Double-click to reset • Real-time code generation</p>
+          </footer>
+        </div>
+      </main>
+    </div>
   );
 }
