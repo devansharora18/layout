@@ -5,6 +5,10 @@
 
 The Responsive Layout Builder is a web tool that lets developers quickly create and test page layouts. You can split the screen into sections, adjust them, and instantly see the generated code in JSX + Tailwind or HTML + CSS. Future updates will add breakpoint-specific settings(sm, md, lg) so layouts adapt better on different devices.
 
+
+https://github.com/user-attachments/assets/01ee3edf-c171-4ee2-a6d4-e6261de60493
+
+
 ## What It Can Do
 
 - Interactive canvas with split panes (horizontal / vertical)
