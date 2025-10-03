@@ -5,6 +5,9 @@ import type { RootState } from "@/store";
 import { type NodeModel, isLeaf } from "@/store/layoutSlice";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/ui/Toast";
+import Card, { CardHeader, CardContent, CardTitle } from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
 
 export default function CodeOutput() {
   const root = useSelector((s: RootState) => s.layout.root);
@@ -15,7 +18,7 @@ export default function CodeOutput() {
     const indent = "  ".repeat(depth);
 
     if (isLeaf(node)) {
-      return `${indent}<div className="flex-1">\n${indent}  {/* ${node.label} */}\n${indent}</div>`;
+      return `${indent}<div className="flex-1 bg-gray-100 p-4">\n${indent}  {/* ${node.label} */}\n${indent}</div>`;
     }
 
     // Split node
@@ -27,7 +30,7 @@ export default function CodeOutput() {
     const child1Code = generateJSX(child1, depth + 1);
     const child2Code = generateJSX(child2, depth + 1);
 
-    return `${indent}<div className="flex ${flexDir} w-full h-full">\n${indent}  <div className="flex" style={{ flex: ${size1.toFixed(3)} }}>\n${child1Code}\n${indent}  </div>\n${indent}  <div className="flex" style={{ flex: ${size2.toFixed(3)} }}>\n${child2Code}\n${indent}  </div>\n${indent}</div>`;
+    return `${indent}<div className="flex ${flexDir} w-full h-full gap-1">\n${indent}  <div className="flex" style={{ flex: ${size1.toFixed(3)} }}>\n${child1Code}\n${indent}  </div>\n${indent}  <div className="flex" style={{ flex: ${size2.toFixed(3)} }}>\n${child2Code}\n${indent}  </div>\n${indent}</div>`;
   };
 
   // Generate HTML + CSS code
@@ -42,6 +45,8 @@ export default function CodeOutput() {
         const className = `leaf-${cssCounter++}`;
         cssRules.push(`.${className} {
   flex: 1;
+  background-color: #f3f4f6;
+  padding: 1rem;
 }`);
         return `${indent}<div class="${className}"><!-- ${n.label} --></div>`;
       }
@@ -56,6 +61,7 @@ export default function CodeOutput() {
   flex-direction: ${flexDir};
   width: 100%;
   height: 100%;
+  gap: 0.25rem;
 }`);
 
       const [size1, size2] = split.sizes;
@@ -105,50 +111,105 @@ ${indent}</div>`;
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
-      push({ title: "Code copied", description: activeTab === "jsx" ? "JSX + Tailwind snippet" : "HTML + CSS snippet", variant: "success", duration: 1800 });
+      push({ 
+        title: "Code copied!", 
+        description: `${activeTab === "jsx" ? "JSX + Tailwind" : "HTML + CSS"} snippet copied to clipboard`, 
+        variant: "success", 
+        duration: 2000 
+      });
       if (timerRef.current) window.clearTimeout(timerRef.current);
-      timerRef.current = window.setTimeout(() => setCopied(false), 1000);
+      timerRef.current = window.setTimeout(() => setCopied(false), 2000);
     });
   };
 
   return (
-    <div className="w-full max-w-5xl flex flex-col gap-3 mt-4">
-      <div className="flex gap-2 border-b border-white/20">
-        <button
-          className={`px-4 py-2 font-semibold ${
-            activeTab === "jsx"
-              ? "border-b-2 border-indigo-400 text-indigo-300"
-              : "text-gray-300 hover:text-white"
-          }`}
-          onClick={() => setActiveTab("jsx")}
-        >
-          JSX + Tailwind
-        </button>
-        <button
-          className={`px-4 py-2 font-semibold ${
-            activeTab === "html"
-              ? "border-b-2 border-indigo-400 text-indigo-300"
-              : "text-gray-300 hover:text-white"
-          }`}
-          onClick={() => setActiveTab("html")}
-        >
-          HTML + CSS
-        </button>
-      </div>
+    <div className="w-full max-w-5xl">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CardTitle className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                Generated Code
+              </CardTitle>
+              <Badge variant="success" size="sm">Real-time</Badge>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "jsx"
+                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
+                    : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+                }`}
+                onClick={() => setActiveTab("jsx")}
+              >
+                JSX + Tailwind
+              </button>
+              <button
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "html"
+                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
+                    : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+                }`}
+                onClick={() => setActiveTab("html")}
+              >
+                HTML + CSS
+              </button>
+            </div>
+          </div>
+        </CardHeader>
 
-      <div className="relative">
-        <button
-          onClick={() => copyToClipboard(activeTab === "jsx" ? jsxCode : htmlCode)}
-          className={`absolute top-2 right-2 px-3 py-1 text-xs rounded z-10 border backdrop-blur-md transition
-            ${copied ? "bg-emerald-500/20 border-emerald-400/40 text-emerald-200" : "bg-white/15 border-white/25 text-white hover:bg-white/25"}`}
-          disabled={copied}
-        >
-          {copied ? "Copied" : "Copy"}
-        </button>
-        <pre className="custom-scrollbar bg-black/60 backdrop-blur-xl text-indigo-100 p-4 rounded-xl overflow-x-auto max-h-96 overflow-y-auto border border-white/15 shadow-inner text-xs leading-relaxed">
-          <code>{activeTab === "jsx" ? jsxCode : htmlCode}</code>
-        </pre>
-      </div>
+        <CardContent>
+          <div className="relative">
+            <div className="absolute top-3 right-3 z-10">
+              <Button
+                variant={copied ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => copyToClipboard(activeTab === "jsx" ? jsxCode : htmlCode)}
+                disabled={copied}
+              >
+                {copied ? (
+                  <>
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 border-b border-white/10">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span className="ml-2 text-gray-400 text-xs font-mono">
+                  {activeTab === "jsx" ? "component.jsx" : "layout.html"}
+                </span>
+              </div>
+              
+              <pre className="custom-scrollbar text-gray-100 p-4 overflow-x-auto max-h-96 overflow-y-auto text-sm leading-relaxed font-mono">
+                <code className="language-jsx">
+                  {activeTab === "jsx" ? jsxCode : htmlCode}
+                </code>
+              </pre>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
