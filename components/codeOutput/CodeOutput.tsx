@@ -3,7 +3,8 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { type NodeModel, isLeaf } from "@/store/layoutSlice";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 export default function CodeOutput() {
   const root = useSelector((s: RootState) => s.layout.root);
@@ -97,10 +98,16 @@ ${indent}</div>`;
 
   const htmlCode = `<!-- HTML -->\n${html}\n\n<!-- CSS -->\n<style>\n${css}\n</style>`;
 
+  const { push } = useToast();
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      // You could add a toast notification here
-      console.log("Copied to clipboard!");
+      setCopied(true);
+      push({ title: "Code copied", description: activeTab === "jsx" ? "JSX + Tailwind snippet" : "HTML + CSS snippet", variant: "success", duration: 1800 });
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => setCopied(false), 1000);
     });
   };
 
@@ -132,9 +139,11 @@ ${indent}</div>`;
       <div className="relative">
         <button
           onClick={() => copyToClipboard(activeTab === "jsx" ? jsxCode : htmlCode)}
-          className="absolute top-2 right-2 px-3 py-1 text-xs bg-white/15 backdrop-blur-md border border-white/25 text-white rounded hover:bg-white/25 z-10"
+          className={`absolute top-2 right-2 px-3 py-1 text-xs rounded z-10 border backdrop-blur-md transition
+            ${copied ? "bg-emerald-500/20 border-emerald-400/40 text-emerald-200" : "bg-white/15 border-white/25 text-white hover:bg-white/25"}`}
+          disabled={copied}
         >
-          Copy
+          {copied ? "Copied" : "Copy"}
         </button>
         <pre className="custom-scrollbar bg-black/60 backdrop-blur-xl text-indigo-100 p-4 rounded-xl overflow-x-auto max-h-96 overflow-y-auto border border-white/15 shadow-inner text-xs leading-relaxed">
           <code>{activeTab === "jsx" ? jsxCode : htmlCode}</code>
