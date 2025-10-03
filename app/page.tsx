@@ -183,17 +183,17 @@ export default function Home() {
                 <span className="ml-4 text-gray-400 text-sm">Layout Builder</span>
               </div>
               <div className="bg-gray-800/80 rounded-lg p-4 text-gray-300 font-mono text-sm overflow-x-auto">
-                <div className="text-purple-400">// Generated JSX + Tailwind</div>
+                <div className="text-purple-400">&#47;&#47; Generated JSX + Tailwind</div>
                 <div className="mt-2">
                   <span className="text-blue-400">&lt;div</span>
                   <span className="text-green-400"> className=</span>
-                  <span className="text-yellow-400">"flex h-screen"</span>
+                  <span className="text-yellow-400">&quot;flex h-screen&quot;</span>
                   <span className="text-blue-400">&gt;</span>
                 </div>
                 <div className="ml-4">
                   <span className="text-blue-400">&lt;div</span>
                   <span className="text-green-400"> className=</span>
-                  <span className="text-yellow-400">"flex-1 bg-blue-500"</span>
+                  <span className="text-yellow-400">&quot;flex-1 bg-blue-500&quot;</span>
                   <span className="text-blue-400">&gt;</span>
                   <span className="text-gray-400">Sidebar</span>
                   <span className="text-blue-400">&lt;/div&gt;</span>
@@ -201,7 +201,7 @@ export default function Home() {
                 <div className="ml-4">
                   <span className="text-blue-400">&lt;div</span>
                   <span className="text-green-400"> className=</span>
-                  <span className="text-yellow-400">"flex-[3] bg-gray-100"</span>
+                  <span className="text-yellow-400">&quot;flex-[3] bg-gray-100&quot;</span>
                   <span className="text-blue-400">&gt;</span>
                   <span className="text-gray-400">Main Content</span>
                   <span className="text-blue-400">&lt;/div&gt;</span>
@@ -219,10 +219,10 @@ export default function Home() {
         <section className="container mx-auto px-4 py-20 max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              What's coming next
+              What&apos;s coming next
             </h2>
             <p className="text-lg text-gray-300/80 max-w-2xl mx-auto">
-              We're constantly improving and adding new features to enhance your workflow
+              We&apos;re constantly improving and adding new features to enhance your workflow
             </p>
           </div>
 
