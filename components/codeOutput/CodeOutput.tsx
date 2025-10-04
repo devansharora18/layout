@@ -18,7 +18,7 @@ export default function CodeOutput() {
     const indent = "  ".repeat(depth);
 
     if (isLeaf(node)) {
-      return `${indent}<div className="flex-1 bg-gray-100 p-4">\n${indent}  {/* ${node.label} */}\n${indent}</div>`;
+      return `${indent}{/* ${node.label} */}`;
     }
 
     // Split node
@@ -30,7 +30,11 @@ export default function CodeOutput() {
     const child1Code = generateJSX(child1, depth + 1);
     const child2Code = generateJSX(child2, depth + 1);
 
-    return `${indent}<div className="flex ${flexDir} w-full h-full gap-1">\n${indent}  <div className="flex" style={{ flex: ${size1.toFixed(3)} }}>\n${child1Code}\n${indent}  </div>\n${indent}  <div className="flex" style={{ flex: ${size2.toFixed(3)} }}>\n${child2Code}\n${indent}  </div>\n${indent}</div>`;
+    // Generate flex classes, omit when value is 1
+    const flexClass1 = size1 === 1 ? "flex" : `flex flex-[${size1.toFixed(3)}]`;
+    const flexClass2 = size2 === 1 ? "flex" : `flex flex-[${size2.toFixed(3)}]`;
+
+    return `${indent}<div className="flex ${flexDir} w-full h-full">\n${indent}  <div className="${flexClass1}">\n${child1Code}\n${indent}  </div>\n${indent}  <div className="${flexClass2}">\n${child2Code}\n${indent}  </div>\n${indent}</div>`;
   };
 
   // Generate HTML + CSS code
