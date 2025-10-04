@@ -249,21 +249,13 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                   <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
-                  <span className="text-gray-200/90">LocalStorage save & auto-restore</span>
-                  <Badge variant="warning" size="sm">Soon</Badge>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
                   <span className="text-gray-200/90">Export to multiple frameworks</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                   <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
                   <span className="text-gray-200/90">Grid layout support</span>
                 </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
-                  <span className="text-gray-200/90">Custom component templates</span>
-                </div>
+              
               </div>
             </CardContent>
           </Card>
