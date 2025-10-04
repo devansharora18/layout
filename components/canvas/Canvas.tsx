@@ -15,6 +15,7 @@ import {
   setSplitSizes as setSplitSizesAction,
   resetSplit as resetSplitAction,
   rearrangeLeaves as rearrangeLeavesAction,
+  renameLeaf as renameLeafAction,
   removeLeaf as removeLeafAction,
 } from "@/store/layoutSlice";
 import type { RootState } from "@/store";
@@ -193,6 +194,7 @@ export default function Canvas() {
             onSelect={() => dispatch(selectLeafAction(root.id))}
             onDragStart={() => onLeafDragStart(root.id)}
             onDrop={() => onLeafDrop(root.id)}
+            onRename={(newLabel) => dispatch(renameLeafAction({ leafId: root.id, newLabel }))}
             onDelete={() => dispatch(removeLeafAction({ leafId: root.id }))}
           />
         ) : (
@@ -205,6 +207,7 @@ export default function Canvas() {
             onLeafDragStart={onLeafDragStart}
             onLeafDrop={onLeafDrop}
             onResetSplit={(splitId) => dispatch(resetSplitAction({ splitId }))}
+            onRenameLeaf={(leafId, newLabel) => dispatch(renameLeafAction({ leafId, newLabel }))}
             onDeleteLeaf={(leafId) => dispatch(removeLeafAction({ leafId }))}
           />
         )}

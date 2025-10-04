@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import type { LeafNode } from "@/store/layoutSlice";
 import type React from "react";
 
@@ -9,6 +10,7 @@ export default function LeafView({
   onSelect,
   onDragStart,
   onDrop,
+  onRename,
   onDelete,
 }: {
   leaf: LeafNode;
@@ -16,8 +18,46 @@ export default function LeafView({
   onSelect: () => void;
   onDragStart: () => void;
   onDrop: () => void;
+  onRename?: (newLabel: string) => void;
   onDelete?: () => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(leaf.label);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setEditValue(leaf.label);
+    // Focus input after render
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const handleSaveEdit = () => {
+    const trimmedValue = editValue.trim();
+    if (trimmedValue && trimmedValue !== leaf.label && onRename) {
+      onRename(trimmedValue);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditValue(leaf.label);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div
       className={`w-full h-full flex flex-col border ${
@@ -62,10 +102,35 @@ export default function LeafView({
         </button>
       </div>
       <div
-        className="flex-1 flex items-center justify-center font-semibold text-white text-xs"
+        className="flex-1 flex items-center justify-center font-semibold text-white text-xs relative"
         style={{ background: `linear-gradient(135deg, ${leaf.color} 0%, ${leaf.color}CC 60%)` }}
       >
-        Pane
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={handleSaveEdit}
+            onKeyDown={handleKeyDown}
+            className="bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-semibold text-center outline-none border-2 border-white/50 focus:border-white"
+            style={{ minWidth: '60px', maxWidth: '120px' }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span 
+            className="select-none cursor-pointer px-2 py-1 rounded hover:bg-white/20 transition-colors" 
+            title="Click to rename"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onRename) {
+                handleStartEdit();
+              }
+            }}
+          >
+            {leaf.label}
+          </span>
+        )}
       </div>
     </div>
   );

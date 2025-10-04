@@ -179,6 +179,10 @@ const layoutSlice = createSlice({
       state.root = updateNode(state.root, a, (n) => (isLeaf(n) ? { ...n, label: nb.label, color: nb.color } : n));
       state.root = updateNode(state.root, b, (n) => (isLeaf(n) ? { ...n, label: tLabel, color: tColor } : n));
     },
+    renameLeaf(state, action: PayloadAction<{ leafId: string; newLabel: string }>) {
+      const { leafId, newLabel } = action.payload;
+      state.root = updateNode(state.root, leafId, (n) => (isLeaf(n) ? { ...n, label: newLabel } : n));
+    },
     removeLeaf(state, action: PayloadAction<{ leafId: string }>) {
       const { leafId } = action.payload;
 
@@ -228,6 +232,7 @@ export const {
   setSplitSizes,
   resetSplit,
   rearrangeLeaves,
+  renameLeaf,
   removeLeaf,
 } = layoutSlice.actions;
 
