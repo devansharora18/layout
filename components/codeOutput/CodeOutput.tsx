@@ -38,75 +38,38 @@ export default function CodeOutput() {
   };
 
   // Generate HTML + CSS code
-  const generateHTML = (node: NodeModel): { html: string; css: string } => {
-    let cssCounter = 0;
-    const cssRules: string[] = [];
+  const generateHTML = (node: NodeModel, depth = 0): string => {
+    const indent = "  ".repeat(depth);
 
-    const generateHTMLRecursive = (n: NodeModel, depth = 0): string => {
-      const indent = "  ".repeat(depth);
+    if (isLeaf(node)) {
+      return `${indent}<!-- ${node.label} -->`;
+    }
 
-      if (isLeaf(n)) {
-        const className = `leaf-${cssCounter++}`;
-        cssRules.push(`.${className} {
-  flex: 1;
-  background-color: #f3f4f6;
-  padding: 1rem;
-}`);
-        return `${indent}<div class="${className}"><!-- ${n.label} --></div>`;
-      }
+    // Split node
+    const split = node;
+    const flexDir = split.orientation === "row" ? "row" : "column";
+    const [size1, size2] = split.sizes;
+    const [child1, child2] = split.children;
 
-      // Split node
-      const split = n;
-      const containerClass = `container-${cssCounter++}`;
-      const flexDir = split.orientation === "row" ? "row" : "column";
-      
-      cssRules.push(`.${containerClass} {
-  display: flex;
-  flex-direction: ${flexDir};
-  width: 100%;
-  height: 100%;
-  gap: 0.25rem;
-}`);
+    const child1Code = generateHTML(child1, depth + 1);
+    const child2Code = generateHTML(child2, depth + 1);
 
-      const [size1, size2] = split.sizes;
-      const [child1, child2] = split.children;
+    // Generate flex styles, omit when value is 1
+    const flexStyle1 = size1 === 1 ? "display: flex;" : `display: flex; flex: ${size1.toFixed(3)};`;
+    const flexStyle2 = size2 === 1 ? "display: flex;" : `display: flex; flex: ${size2.toFixed(3)};`;
 
-      const child1Class = `child-${cssCounter++}`;
-      const child2Class = `child-${cssCounter++}`;
-
-      cssRules.push(`.${child1Class} {
-  display: flex;
-  flex: ${size1.toFixed(3)};
-}`);
-
-      cssRules.push(`.${child2Class} {
-  display: flex;
-  flex: ${size2.toFixed(3)};
-}`);
-
-      const child1HTML = generateHTMLRecursive(child1, depth + 2);
-      const child2HTML = generateHTMLRecursive(child2, depth + 2);
-
-      return `${indent}<div class="${containerClass}">
-${indent}  <div class="${child1Class}">
-${child1HTML}
+    return `${indent}<div style="display: flex; flex-direction: ${flexDir}; width: 100%; height: 100%;">
+${indent}  <div style="${flexStyle1}">
+${child1Code}
 ${indent}  </div>
-${indent}  <div class="${child2Class}">
-${child2HTML}
+${indent}  <div style="${flexStyle2}">
+${child2Code}
 ${indent}  </div>
 ${indent}</div>`;
-    };
-
-    const html = generateHTMLRecursive(node, 0);
-    const css = cssRules.join("\n\n");
-
-    return { html, css };
   };
 
   const jsxCode = generateJSX(root);
-  const { html, css } = generateHTML(root);
-
-  const htmlCode = `<!-- HTML -->\n${html}\n\n<!-- CSS -->\n<style>\n${css}\n</style>`;
+  const htmlCode = generateHTML(root);
 
   const { push } = useToast();
   const [copied, setCopied] = useState(false);
