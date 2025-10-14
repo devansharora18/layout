@@ -157,6 +157,34 @@ const layoutSlice = createSlice({
         return split;
       });
     },
+    splitLeafInDirection(
+      state,
+      action: PayloadAction<{ leafId: string; orientation: Orientation }>
+    ) {
+      const { leafId, orientation } = action.payload;
+      const target = findNode(state.root, leafId);
+      if (!target || !isLeaf(target)) return;
+      const newLeaf: LeafNode = {
+        id: `leaf-${state.idSeq}`,
+        type: "leaf",
+        label: `Div ${state.idSeq}`,
+        color: randomColor(),
+      };
+      state.idSeq += 1;
+      state.root = updateNode(state.root, leafId, (n) => {
+        if (!isLeaf(n)) return n;
+        const first: LeafNode = { ...n };
+        const split: SplitNode = {
+          id: `split-${state.splitSeq}`,
+          type: "split",
+          orientation,
+          sizes: [0.5, 0.5],
+          children: [first, newLeaf],
+        };
+        state.splitSeq += 1;
+        return split;
+      });
+    },
     setSplitSizes(
       state,
       action: PayloadAction<{ splitId: string; sizes: [number, number] }>
@@ -229,6 +257,7 @@ export const {
   toggleNextOrientation,
   reset,
   splitSelected,
+  splitLeafInDirection,
   setSplitSizes,
   resetSplit,
   rearrangeLeaves,

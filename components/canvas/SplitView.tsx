@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { isLeaf, type SplitNode, type NodeModel } from "@/store/layoutSlice";
+import { isLeaf, type SplitNode, type NodeModel, type Orientation } from "@/store/layoutSlice";
 import LeafView from "./LeafView";
 
 export default function SplitView(props: {
@@ -15,6 +15,7 @@ export default function SplitView(props: {
   onResetSplit: (splitId: string) => void;
   onRenameLeaf: (leafId: string, newLabel: string) => void;
   onDeleteLeaf: (leafId: string) => void;
+  onSplitLeaf: (leafId: string, orientation: Orientation) => void;
 }) {
   const { split } = props;
   const isRow = split.orientation === "row";
@@ -92,6 +93,7 @@ function RenderNode(props: {
   onResetSplit: (splitId: string) => void;
   onRenameLeaf: (leafId: string, newLabel: string) => void;
   onDeleteLeaf: (leafId: string) => void;
+  onSplitLeaf: (leafId: string, orientation: Orientation) => void;
 }) {
   const { node } = props;
   if (isLeaf(node)) {
@@ -104,6 +106,7 @@ function RenderNode(props: {
         onDrop={() => props.onLeafDrop(node.id)}
         onRename={(newLabel) => props.onRenameLeaf(node.id, newLabel)}
         onDelete={() => props.onDeleteLeaf(node.id)}
+        onSplit={(orientation) => props.onSplitLeaf(node.id, orientation)}
       />
     );
   }

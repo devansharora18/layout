@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { LeafNode } from "@/store/layoutSlice";
+import type { LeafNode, Orientation } from "@/store/layoutSlice";
 import type React from "react";
 
 export default function LeafView({
@@ -12,6 +12,7 @@ export default function LeafView({
   onDrop,
   onRename,
   onDelete,
+  onSplit,
 }: {
   leaf: LeafNode;
   selected: boolean;
@@ -20,6 +21,7 @@ export default function LeafView({
   onDrop: () => void;
   onRename?: (newLabel: string) => void;
   onDelete?: () => void;
+  onSplit?: (orientation: Orientation) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(leaf.label);
@@ -62,7 +64,7 @@ export default function LeafView({
     <div
       className={`w-full h-full flex flex-col border ${
         selected ? "ring-2 ring-indigo-500/70 border-white/30" : "border-white/20"
-      } transition-shadow`}
+      } transition-shadow relative group`}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
@@ -72,7 +74,63 @@ export default function LeafView({
         e.preventDefault();
         onDrop();
       }}
-    >
+        >
+      {/* Gutters for splitting */}
+      {onSplit &&
+        [
+          {
+        key: "top",
+        className: "absolute top-0 left-0 right-0 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
+        orientation: "col" as Orientation,
+        style: {},
+        title: "Split horizontally (stack)",
+        buttonClass: "px-3 py-1",
+          },
+          {
+        key: "right",
+        className: "absolute top-0 right-0 bottom-0 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
+        orientation: "row" as Orientation,
+        style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
+        title: "Split vertically (side-by-side)",
+        buttonClass: "px-2 py-3 writing-mode-vertical",
+          },
+          {
+        key: "bottom",
+        className: "absolute bottom-0 left-0 right-0 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
+        orientation: "col" as Orientation,
+        style: {},
+        title: "Split horizontally (stack)",
+        buttonClass: "px-3 py-1",
+          },
+          {
+        key: "left",
+        className: "absolute top-0 left-0 bottom-0 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
+        orientation: "row" as Orientation,
+        style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
+        title: "Split vertically (side-by-side)",
+        buttonClass: "px-2 py-3 writing-mode-vertical",
+          },
+        ].map((gutter) => (
+          <div
+        key={gutter.key}
+        className={gutter.className}
+        onClick={(e) => e.stopPropagation()}
+          >
+        <button
+          type="button"
+          className={`${gutter.buttonClass} bg-gray-300/10 hover:bg-gray-500/40 text-white text-[15px] font-medium rounded-md shadow-lg backdrop-blur-sm border border-white/30 transition-all`}
+          style={gutter.style}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSplit(gutter.orientation);
+          }}
+          title={gutter.title}
+        >
+          +
+        </button>
+          </div>
+        ))}
+
       <div
         className="px-2 py-1 text-[11px] bg-white/15 backdrop-blur-md border-b border-white/20 flex items-center justify-between cursor-grab select-none text-white"
         draggable

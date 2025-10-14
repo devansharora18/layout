@@ -6,12 +6,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   type NodeModel,
   type SplitNode,
+  type Orientation,
   isSplit,
   isLeaf,
   selectLeaf as selectLeafAction,
-  toggleNextOrientation as toggleNextOrientationAction,
   reset as resetAction,
-  splitSelected as splitSelectedAction,
+  splitLeafInDirection as splitLeafInDirectionAction,
   setSplitSizes as setSplitSizesAction,
   resetSplit as resetSplitAction,
   rearrangeLeaves as rearrangeLeavesAction,
@@ -41,7 +41,6 @@ export default function Canvas() {
   const dispatch = useDispatch();
   const root = useSelector((s: RootState) => s.layout.root);
   const selectedLeafId = useSelector((s: RootState) => s.layout.selectedLeafId);
-  const nextOrientation = useSelector((s: RootState) => s.layout.nextOrientation);
 
   // drag state (resize or rearrange)
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -56,17 +55,9 @@ export default function Canvas() {
     return null;
   }, []);
 
-  // Split selected leaf into two
-  const handleAdd = useCallback(() => {
-    if (!selectedLeafId) return;
-    const target = findNode(root, selectedLeafId);
-    if (!target || !isLeaf(target)) return;
-    dispatch(splitSelectedAction());
-  }, [dispatch, findNode, root, selectedLeafId]);
-
-  // Toggle default orientation for next split
-  const toggleNextOrientation = useCallback(() => {
-    dispatch(toggleNextOrientationAction());
+  // Split a leaf in a specific direction
+  const handleSplit = useCallback((leafId: string, orientation: Orientation) => {
+    dispatch(splitLeafInDirectionAction({ leafId, orientation }));
   }, [dispatch]);
 
   // Reset layout
@@ -160,25 +151,13 @@ export default function Canvas() {
   const toolbar = (
     <div className="flex items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-sm shadow-lg">
       <button
-        className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow hover:opacity-90 transition"
-        onClick={handleAdd}
-      >
-        + Add div
-      </button>
-      <button
-        className="px-4 py-1.5 rounded-lg bg-white/15 text-white font-medium border border-white/25 hover:bg-white/25 transition"
-        onClick={toggleNextOrientation}
-      >
-        Next split: {nextOrientation === "row" ? "Side-by-side" : "Stacked"}
-      </button>
-      <button
         className="px-4 py-1.5 rounded-lg bg-white/15 text-white font-medium border border-white/25 hover:bg-white/25 transition"
         onClick={reset}
       >
         Reset
       </button>
       <span className="ml-2 text-[11px] text-gray-200/80 hidden md:inline">
-        Tip: click a pane to select, drag borders to resize, drag headers to rearrange.
+        Tip: hover over pane edges to split, drag borders to resize, drag headers to rearrange.
       </span>
     </div>
   );
@@ -196,6 +175,7 @@ export default function Canvas() {
             onDrop={() => onLeafDrop(root.id)}
             onRename={(newLabel) => dispatch(renameLeafAction({ leafId: root.id, newLabel }))}
             onDelete={() => dispatch(removeLeafAction({ leafId: root.id }))}
+            onSplit={(orientation) => handleSplit(root.id, orientation)}
           />
         ) : (
           <SplitView
@@ -209,6 +189,7 @@ export default function Canvas() {
             onResetSplit={(splitId) => dispatch(resetSplitAction({ splitId }))}
             onRenameLeaf={(leafId, newLabel) => dispatch(renameLeafAction({ leafId, newLabel }))}
             onDeleteLeaf={(leafId) => dispatch(removeLeafAction({ leafId }))}
+            onSplitLeaf={handleSplit}
           />
         )}
       </div>
