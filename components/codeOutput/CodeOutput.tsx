@@ -13,12 +13,20 @@ export default function CodeOutput() {
   const root = useSelector((s: RootState) => s.layout.root);
   const [activeTab, setActiveTab] = useState<"jsx" | "html">("jsx");
 
-  // Generate JSX + Tailwind code
+  // Syntax highlighting helper
+  const highlight = {
+    tag: (text: string) => `<span style="color: #89b4fa">${text}</span>`,
+    attr: (text: string) => `<span style="color: #f9e2af">${text}</span>`,
+    string: (text: string) => `<span style="color: #a6e3a1">${text}</span>`,
+    comment: (text: string) => `<span style="color: #6c7086; font-style: italic">${text}</span>`,
+  };
+
+  // Generate JSX + Tailwind code with syntax highlighting
   const generateJSX = (node: NodeModel, depth = 0): string => {
     const indent = "  ".repeat(depth);
 
     if (isLeaf(node)) {
-      return `${indent}{/* ${node.label} */}`;
+      return `${indent}${highlight.comment(`{/* ${node.label} */}`)}`;
     }
 
     // Split node
@@ -34,15 +42,15 @@ export default function CodeOutput() {
     const flexClass1 = size1 === 1 ? "flex" : `flex flex-[${size1.toFixed(3)}]`;
     const flexClass2 = size2 === 1 ? "flex" : `flex flex-[${size2.toFixed(3)}]`;
 
-    return `${indent}<div className="flex ${flexDir} w-full h-full">\n${indent}  <div className="${flexClass1}">\n${child1Code}\n${indent}  </div>\n${indent}  <div className="${flexClass2}">\n${child2Code}\n${indent}  </div>\n${indent}</div>`;
+    return `${indent}${highlight.tag("&lt;div")} ${highlight.attr("className")}=${highlight.string(`"flex ${flexDir} w-full h-full"`)}${highlight.tag("&gt;")}\n${indent}  ${highlight.tag("&lt;div")} ${highlight.attr("className")}=${highlight.string(`"${flexClass1}"`)}${highlight.tag("&gt;")}\n${child1Code}\n${indent}  ${highlight.tag("&lt;/div&gt;")}\n${indent}  ${highlight.tag("&lt;div")} ${highlight.attr("className")}=${highlight.string(`"${flexClass2}"`)}${highlight.tag("&gt;")}\n${child2Code}\n${indent}  ${highlight.tag("&lt;/div&gt;")}\n${indent}${highlight.tag("&lt;/div&gt;")}`;
   };
 
-  // Generate HTML + CSS code
+  // Generate HTML + CSS code with syntax highlighting
   const generateHTML = (node: NodeModel, depth = 0): string => {
     const indent = "  ".repeat(depth);
 
     if (isLeaf(node)) {
-      return `${indent}<!-- ${node.label} -->`;
+      return `${indent}${highlight.comment(`&lt;!-- ${node.label} --&gt;`)}`;
     }
 
     // Split node
@@ -58,14 +66,14 @@ export default function CodeOutput() {
     const flexStyle1 = size1 === 1 ? "display: flex;" : `display: flex; flex: ${size1.toFixed(3)};`;
     const flexStyle2 = size2 === 1 ? "display: flex;" : `display: flex; flex: ${size2.toFixed(3)};`;
 
-    return `${indent}<div style="display: flex; flex-direction: ${flexDir}; width: 100%; height: 100%;">
-${indent}  <div style="${flexStyle1}">
+    return `${indent}${highlight.tag("&lt;div")} ${highlight.attr("style")}=${highlight.string(`"display: flex; flex-direction: ${flexDir}; width: 100%; height: 100%;"`)}${highlight.tag("&gt;")}
+${indent}  ${highlight.tag("&lt;div")} ${highlight.attr("style")}=${highlight.string(`"${flexStyle1}"`)}${highlight.tag("&gt;")}
 ${child1Code}
-${indent}  </div>
-${indent}  <div style="${flexStyle2}">
+${indent}  ${highlight.tag("&lt;/div&gt;")}
+${indent}  ${highlight.tag("&lt;div")} ${highlight.attr("style")}=${highlight.string(`"${flexStyle2}"`)}${highlight.tag("&gt;")}
 ${child2Code}
-${indent}  </div>
-${indent}</div>`;
+${indent}  ${highlight.tag("&lt;/div&gt;")}
+${indent}${highlight.tag("&lt;/div&gt;")}`;
   };
 
   const jsxCode = generateJSX(root);
@@ -76,7 +84,9 @@ ${indent}</div>`;
   const timerRef = useRef<number | null>(null);
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+    // Strip HTML tags for clipboard
+    const plainText = text.replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    navigator.clipboard.writeText(plainText).then(() => {
       setCopied(true);
       push({ 
         title: "Code copied!", 
@@ -156,22 +166,25 @@ ${indent}</div>`;
               </Button>
             </div>
             
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 border-b border-white/10">
+            <div className="bg-[#1e1e2e] backdrop-blur-sm rounded-lg border border-[#313244] overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#181825] border-b border-[#313244]">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-[#f38ba8] rounded-full"></div>
+                  <div className="w-3 h-3 bg-[#f9e2af] rounded-full"></div>
+                  <div className="w-3 h-3 bg-[#a6e3a1] rounded-full"></div>
                 </div>
-                <span className="ml-2 text-gray-400 text-xs font-mono">
+                <span className="ml-2 text-[#cdd6f4] text-xs font-mono">
                   {activeTab === "jsx" ? "component.jsx" : "layout.html"}
                 </span>
               </div>
               
-              <pre className="custom-scrollbar text-gray-100 p-4 overflow-x-auto max-h-96 overflow-y-auto text-sm leading-relaxed font-mono">
-                <code className="language-jsx">
-                  {activeTab === "jsx" ? jsxCode : htmlCode}
-                </code>
+              <pre className="custom-scrollbar text-[#cdd6f4] p-4 overflow-x-auto max-h-96 overflow-y-auto text-sm leading-relaxed font-mono">
+                <code 
+                  className="language-jsx"
+                  dangerouslySetInnerHTML={{ 
+                    __html: activeTab === "jsx" ? jsxCode : htmlCode 
+                  }}
+                />
               </pre>
             </div>
           </div>
