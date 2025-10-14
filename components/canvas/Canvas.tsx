@@ -148,24 +148,19 @@ export default function Canvas() {
   );
 
   // Render
-  const toolbar = (
-    <div className="flex items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 text-sm shadow-lg">
-      <button
-        className="px-4 py-1.5 rounded-lg bg-white/15 text-white font-medium border border-white/25 hover:bg-white/25 transition"
-        onClick={reset}
-      >
-        Reset
-      </button>
-      <span className="ml-2 text-[11px] text-gray-200/80 hidden md:inline">
-        Tip: hover over pane edges to split, drag borders to resize, drag headers to rearrange.
-      </span>
-    </div>
-  );
-
   return (
     <div className="w-full max-w-5xl h-[80vh] flex flex-col gap-4">
-      {toolbar}
-      <div className="flex-1 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden shadow-inner">
+      <div className="flex-1 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden shadow-inner relative">
+        {/* Reset button - always visible at top-left */}
+        <button
+          className="absolute top-2 left-2 p-1 rounded-lg bg-red-600/80 hover:bg-red-500 text-white text-sm font-medium backdrop-blur-sm border border-white/30 transition-all z-50 px-2"
+          onClick={reset}
+          title="Reset layout"
+          aria-label="Reset layout"
+        >
+          ↻
+        </button>
+
         {isLeaf(root) ? (
           <LeafView
             leaf={root}
