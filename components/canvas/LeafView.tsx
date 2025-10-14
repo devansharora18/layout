@@ -64,7 +64,18 @@ export default function LeafView({
     <div
       className={`w-full h-full flex flex-col border ${
         selected ? "ring-2 ring-indigo-500/70 border-white/30" : "border-white/20"
-      } transition-shadow relative group`}
+      } transition-shadow relative group cursor-grab active:cursor-grabbing`}
+      draggable
+      onDragStart={(e) => {
+        // Check if drag started from a gutter or rename area
+        const target = e.target as HTMLElement;
+        if (target.closest('.gutter-button') || target.closest('.rename-area')) {
+          e.preventDefault();
+          return;
+        }
+        e.dataTransfer.setData("text/plain", leaf.id);
+        onDragStart();
+      }}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
@@ -84,7 +95,7 @@ export default function LeafView({
         orientation: "col" as Orientation,
         style: {},
         title: "Split horizontally (stack)",
-        buttonClass: "px-3 py-1",
+        buttonClass: "px-2 py-0",
           },
           {
         key: "right",
@@ -92,7 +103,7 @@ export default function LeafView({
         orientation: "row" as Orientation,
         style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
         title: "Split vertically (side-by-side)",
-        buttonClass: "px-2 py-3 writing-mode-vertical",
+        buttonClass: "px-2 py-0 writing-mode-vertical",
           },
           {
         key: "bottom",
@@ -100,7 +111,7 @@ export default function LeafView({
         orientation: "col" as Orientation,
         style: {},
         title: "Split horizontally (stack)",
-        buttonClass: "px-3 py-1",
+        buttonClass: "px-2 py-0",
           },
           {
         key: "left",
@@ -108,7 +119,7 @@ export default function LeafView({
         orientation: "row" as Orientation,
         style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
         title: "Split vertically (side-by-side)",
-        buttonClass: "px-2 py-3 writing-mode-vertical",
+        buttonClass: "px-2 py-0 writing-mode-vertical",
           },
         ].map((gutter) => (
           <div
@@ -118,7 +129,7 @@ export default function LeafView({
           >
         <button
           type="button"
-          className={`${gutter.buttonClass} bg-gray-300/10 hover:bg-gray-500/40 text-white text-[15px] font-medium rounded-md shadow-lg backdrop-blur-sm border border-white/30 transition-all`}
+          className={`gutter-button ${gutter.buttonClass} bg-gray-300/10 hover:bg-gray-500/40 text-white text-[15px] font-medium rounded-md shadow-lg backdrop-blur-sm border border-white/30 transition-all`}
           style={gutter.style}
           onClick={(e) => {
             e.stopPropagation();
@@ -132,37 +143,26 @@ export default function LeafView({
         ))}
 
       <div
-        className="px-2 py-1 text-[11px] bg-white/15 backdrop-blur-md border-b border-white/20 flex items-center justify-between cursor-grab select-none text-white"
-        draggable
-        onDragStart={(e) => {
-          e.dataTransfer.setData("text/plain", leaf.id);
-          onDragStart();
-        }}
-        onClick={(e) => {
-          // prevent header click from toggling twice
-          e.stopPropagation();
-          onSelect();
-        }}
-      >
-  <span className="font-medium tracking-wide text-[11px]">{leaf.label}</span>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center w-4 h-4 rounded-full cursor-pointer transition-transform text-[13px] leading-none text-white font-bold"
-          aria-label="Delete pane"
-          title="Delete pane"
-          style={{ backgroundColor: leaf.color }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete?.();
-          }}
-        >
-          ×
-        </button>
-      </div>
-      <div
-        className="flex-1 flex items-center justify-center font-semibold text-white text-xs relative"
+        className="flex-1 flex items-center justify-center font-semibold text-white text-xs relative rename-area"
         style={{ background: `linear-gradient(135deg, ${leaf.color} 0%, ${leaf.color}CC 60%)` }}
       >
+        {/* Delete button - appears on hover */}
+        {onDelete && (
+          <button
+            type="button"
+            className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 rounded-full cursor-pointer transition-all text-[16px] leading-none text-white font-bold opacity-0 group-hover:opacity-100 hover:scale-110 shadow-lg z-30"
+            aria-label="Delete pane"
+            title="Delete pane"
+            style={{ backgroundColor: leaf.color }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            ×
+          </button>
+        )}
+
         {isEditing ? (
           <input
             ref={inputRef}
@@ -171,13 +171,13 @@ export default function LeafView({
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={handleSaveEdit}
             onKeyDown={handleKeyDown}
-            className="bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-semibold text-center outline-none border-2 border-white/50 focus:border-white"
+            className="bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-semibold text-center outline-none border-2 border-white/50 focus:border-white z-20"
             style={{ minWidth: '60px', maxWidth: '120px' }}
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
           <span 
-            className="select-none cursor-pointer px-2 py-1 rounded hover:bg-white/20 transition-colors" 
+            className="select-none cursor-pointer px-2 py-1 rounded hover:bg-white/20 transition-colors z-20" 
             title="Click to rename"
             onClick={(e) => {
               e.stopPropagation();
