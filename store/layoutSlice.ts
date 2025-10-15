@@ -19,12 +19,15 @@ export type SplitNode = {
 
 export type NodeModel = LeafNode | SplitNode;
 
+export type ViewportMode = "lg" | "md" | "sm";
+
 export type LayoutState = {
   root: NodeModel;
   selectedLeafId: string | null;
   nextOrientation: Orientation;
   idSeq: number; // for generating sequential leaf labels (Div 1, Div 2, ...)
   splitSeq: number; // independent counter for split node ids
+  viewportMode: ViewportMode; // responsive viewport mode (lg: desktop, md: tablet, sm: mobile)
 };
 
 export function isSplit(n: NodeModel): n is SplitNode {
@@ -54,6 +57,7 @@ function validateState(obj: any): obj is LayoutState {
   if (typeof obj !== "object") return false;
   if (!obj.root) return false;
   if (!("idSeq" in obj) || !("splitSeq" in obj)) return false;
+  // viewportMode is optional for backwards compatibility
   return true;
 }
 
@@ -78,12 +82,19 @@ function defaultState(): LayoutState {
     nextOrientation: "row",
     idSeq: 2,
     splitSeq: 1,
+    viewportMode: "lg", // default to desktop view
   };
 }
 
 function initState(): LayoutState {
   const persisted = loadPersistedState();
-  if (persisted) return persisted;
+  if (persisted) {
+    // Ensure viewportMode exists for backwards compatibility
+    if (!persisted.viewportMode) {
+      persisted.viewportMode = "lg";
+    }
+    return persisted;
+  }
   return defaultState();
 }
 
@@ -130,6 +141,10 @@ const layoutSlice = createSlice({
       state.nextOrientation = s.nextOrientation;
       state.idSeq = s.idSeq;
       state.splitSeq = s.splitSeq;
+      state.viewportMode = s.viewportMode;
+    },
+    setViewportMode(state, action: PayloadAction<ViewportMode>) {
+      state.viewportMode = action.payload;
     },
     splitSelected(state) {
       const sel = state.selectedLeafId;
@@ -317,6 +332,7 @@ export const {
   renameLeaf,
   removeLeaf,
   moveLeafToSplit,
+  setViewportMode,
 } = layoutSlice.actions;
 
 export default layoutSlice.reducer;
