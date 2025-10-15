@@ -17,6 +17,7 @@ import {
   rearrangeLeaves as rearrangeLeavesAction,
   renameLeaf as renameLeafAction,
   removeLeaf as removeLeafAction,
+  moveLeafToSplit as moveLeafToSplitAction,
 } from "@/store/layoutSlice";
 import type { RootState } from "@/store";
 import SplitView from "./SplitView";
@@ -147,6 +148,26 @@ export default function Canvas() {
     [dispatch, drag, findNode, root]
   );
 
+  const onLeafDropEdge = useCallback(
+    (targetLeafId: string, edge: "top" | "right" | "bottom" | "left") => {
+      if (!drag || drag.kind !== "rearrange") return;
+      const sourceId = drag.sourceLeafId;
+      if (sourceId === targetLeafId) return setDrag(null);
+
+      // Determine orientation based on edge
+      const orientation: Orientation = (edge === "left" || edge === "right") ? "row" : "col";
+      
+      // Move the source leaf to split at the target
+      dispatch(moveLeafToSplitAction({ 
+        sourceLeafId: sourceId, 
+        targetLeafId, 
+        orientation 
+      }));
+      setDrag(null);
+    },
+    [dispatch, drag]
+  );
+
   // Render
   return (
     <div className="w-full max-w-5xl h-[80vh] flex flex-col gap-4">
@@ -168,6 +189,7 @@ export default function Canvas() {
             onSelect={() => dispatch(selectLeafAction(root.id))}
             onDragStart={() => onLeafDragStart(root.id)}
             onDrop={() => onLeafDrop(root.id)}
+            onDropEdge={(edge) => onLeafDropEdge(root.id, edge)}
             onRename={(newLabel) => dispatch(renameLeafAction({ leafId: root.id, newLabel }))}
             onDelete={() => dispatch(removeLeafAction({ leafId: root.id }))}
             onSplit={(orientation) => handleSplit(root.id, orientation)}
@@ -181,6 +203,7 @@ export default function Canvas() {
             splitRefs={splitRefs}
             onLeafDragStart={onLeafDragStart}
             onLeafDrop={onLeafDrop}
+            onLeafDropEdge={onLeafDropEdge}
             onResetSplit={(splitId) => dispatch(resetSplitAction({ splitId }))}
             onRenameLeaf={(leafId, newLabel) => dispatch(renameLeafAction({ leafId, newLabel }))}
             onDeleteLeaf={(leafId) => dispatch(removeLeafAction({ leafId }))}

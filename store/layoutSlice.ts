@@ -249,6 +249,59 @@ const layoutSlice = createSlice({
         state.selectedLeafId = firstLeaf(state.root);
       }
     },
+    moveLeafToSplit(
+      state,
+      action: PayloadAction<{ sourceLeafId: string; targetLeafId: string; orientation: Orientation }>
+    ) {
+      const { sourceLeafId, targetLeafId, orientation } = action.payload;
+      
+      // Can't move to itself
+      if (sourceLeafId === targetLeafId) return;
+      
+      // Get the source leaf data
+      const sourceNode = findNode(state.root, sourceLeafId);
+      if (!sourceNode || !isLeaf(sourceNode)) return;
+      
+      // Save source leaf data
+      const sourceLeafData: LeafNode = { ...sourceNode };
+      
+      // Remove the source leaf first
+      function prune(node: NodeModel): NodeModel | null {
+        if (isLeaf(node)) {
+          return node.id === sourceLeafId ? null : node;
+        }
+        const left = prune(node.children[0]);
+        const right = prune(node.children[1]);
+        if (left && right) {
+          return { ...node, children: [left, right] as [NodeModel, NodeModel] };
+        }
+        if (left && !right) return left;
+        if (!left && right) return right;
+        return null;
+      }
+
+      const prunedRoot = prune(state.root);
+      if (!prunedRoot) return;
+      state.root = prunedRoot;
+      
+      // Now split the target leaf with the source leaf
+      const targetNode = findNode(state.root, targetLeafId);
+      if (!targetNode || !isLeaf(targetNode)) return;
+      
+      state.root = updateNode(state.root, targetLeafId, (n) => {
+        if (!isLeaf(n)) return n;
+        const targetLeaf: LeafNode = { ...n };
+        const split: SplitNode = {
+          id: `split-${state.splitSeq}`,
+          type: "split",
+          orientation,
+          sizes: [0.5, 0.5],
+          children: [targetLeaf, sourceLeafData],
+        };
+        state.splitSeq += 1;
+        return split;
+      });
+    },
   },
 });
 
@@ -263,6 +316,7 @@ export const {
   rearrangeLeaves,
   renameLeaf,
   removeLeaf,
+  moveLeafToSplit,
 } = layoutSlice.actions;
 
 export default layoutSlice.reducer;

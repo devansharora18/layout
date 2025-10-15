@@ -10,6 +10,7 @@ export default function LeafView({
   onSelect,
   onDragStart,
   onDrop,
+  onDropEdge,
   onRename,
   onDelete,
   onSplit,
@@ -19,13 +20,16 @@ export default function LeafView({
   onSelect: () => void;
   onDragStart: () => void;
   onDrop: () => void;
+  onDropEdge?: (edge: "top" | "right" | "bottom" | "left") => void;
   onRename?: (newLabel: string) => void;
   onDelete?: () => void;
   onSplit?: (orientation: Orientation) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(leaf.label);
+  const [dragOverEdge, setDragOverEdge] = useState<"top" | "right" | "bottom" | "left" | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleStartEdit = () => {
     setIsEditing(true);
@@ -60,8 +64,61 @@ export default function LeafView({
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const edgeThreshold = 60; // pixels from edge
+    
+    // Determine which edge is closest
+    const distanceTop = y;
+    const distanceBottom = rect.height - y;
+    const distanceLeft = x;
+    const distanceRight = rect.width - x;
+    
+    const minDistance = Math.min(distanceTop, distanceBottom, distanceLeft, distanceRight);
+    
+    if (minDistance < edgeThreshold) {
+      if (minDistance === distanceTop) {
+        setDragOverEdge("top");
+      } else if (minDistance === distanceBottom) {
+        setDragOverEdge("bottom");
+      } else if (minDistance === distanceLeft) {
+        setDragOverEdge("left");
+      } else {
+        setDragOverEdge("right");
+      }
+    } else {
+      setDragOverEdge(null);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverEdge(null);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    
+    if (dragOverEdge && onDropEdge) {
+      // Move the dragged pane to this edge
+      onDropEdge(dragOverEdge);
+    } else {
+      // Default drop behavior (swap)
+      onDrop();
+    }
+    
+    setDragOverEdge(null);
+  };
+
   return (
     <div
+      ref={containerRef}
       className={`w-full h-full flex flex-col border ${
         selected ? "ring-2 ring-indigo-500/70 border-white/30" : "border-white/20"
       } transition-shadow relative group cursor-grab active:cursor-grabbing`}
@@ -80,12 +137,40 @@ export default function LeafView({
         e.stopPropagation();
         onSelect();
       }}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.preventDefault();
-        onDrop();
-      }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
         >
+      {/* Edge snap drop zones - visual indicators */}
+      {dragOverEdge === "top" && (
+        <div className="absolute top-0 left-0 right-0 h-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
+          </div>
+        </div>
+      )}
+      {dragOverEdge === "bottom" && (
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
+          </div>
+        </div>
+      )}
+      {dragOverEdge === "left" && (
+        <div className="absolute top-0 left-0 bottom-0 w-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
+          </div>
+        </div>
+      )}
+      {dragOverEdge === "right" && (
+        <div className="absolute top-0 right-0 bottom-0 w-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
+          </div>
+        </div>
+      )}
+
       {/* Gutters for splitting */}
       {onSplit &&
         [

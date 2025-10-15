@@ -12,6 +12,7 @@ export default function SplitView(props: {
   splitRefs: React.RefObject<Map<string, HTMLDivElement | null>>;
   onLeafDragStart: (leafId: string) => void;
   onLeafDrop: (leafId: string) => void;
+  onLeafDropEdge: (leafId: string, edge: "top" | "right" | "bottom" | "left") => void;
   onResetSplit: (splitId: string) => void;
   onRenameLeaf: (leafId: string, newLabel: string) => void;
   onDeleteLeaf: (leafId: string) => void;
@@ -90,6 +91,7 @@ function RenderNode(props: {
   splitRefs: React.RefObject<Map<string, HTMLDivElement | null>>;
   onLeafDragStart: (leafId: string) => void;
   onLeafDrop: (leafId: string) => void;
+  onLeafDropEdge: (leafId: string, edge: "top" | "right" | "bottom" | "left") => void;
   onResetSplit: (splitId: string) => void;
   onRenameLeaf: (leafId: string, newLabel: string) => void;
   onDeleteLeaf: (leafId: string) => void;
@@ -104,6 +106,7 @@ function RenderNode(props: {
         onSelect={() => props.onSelectLeaf(node.id)}
         onDragStart={() => props.onLeafDragStart(node.id)}
         onDrop={() => props.onLeafDrop(node.id)}
+        onDropEdge={(edge) => props.onLeafDropEdge(node.id, edge)}
         onRename={(newLabel) => props.onRenameLeaf(node.id, newLabel)}
         onDelete={() => props.onDeleteLeaf(node.id)}
         onSplit={(orientation) => props.onSplitLeaf(node.id, orientation)}
