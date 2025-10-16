@@ -176,10 +176,10 @@ export default function Canvas() {
   // Determine canvas dimensions based on viewport mode
   const getCanvasDimensions = () => {
     switch (viewportMode) {
-      case "sm": // Mobile (e.g., iPhone 13)
-        return { width: "375px", height: "667px", maxWidth: "375px" };
-      case "md": // Tablet (e.g., iPad)
-        return { width: "768px", height: "1024px", maxWidth: "768px" };
+      case "sm": // Mobile
+        return { width: "375px", height: "80vh", maxWidth: "375px" };
+      case "md": // Tablet
+        return { width: "768px", height: "80vh", maxWidth: "768px" };
       case "lg": // Desktop (default)
       default:
         return { width: "100%", height: "80vh", maxWidth: "1280px" };
