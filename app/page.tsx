@@ -301,15 +301,16 @@ export default function Home() {
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center space-x-2 text-sm text-gray-400">
-                <span>Built with ❤️ by</span>
+                <span>A</span>
                 <a
-                  href="https://github.com/devansharora18"
+                  href="https://devansharora.in"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-purple-400 hover:text-purple-300 transition-colors"
                 >
-                  @devansharora18
+                  Devansh Arora
                 </a>
+                <span>Production</span>
               </div>
               <div className="flex items-center space-x-6 text-sm text-gray-400">
                 <a
