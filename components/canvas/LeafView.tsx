@@ -6,6 +6,7 @@ import type React from "react";
 
 export default function LeafView({
   leaf,
+  ratio,
   selected,
   onSelect,
   onDragStart,
@@ -16,6 +17,8 @@ export default function LeafView({
   onSplit,
 }: {
   leaf: LeafNode;
+  /** This pane's share of its parent, shown as a measurement readout. */
+  ratio: number;
   selected: boolean;
   onSelect: () => void;
   onDragStart: () => void;
@@ -116,12 +119,23 @@ export default function LeafView({
     setDragOverEdge(null);
   };
 
+  /* Edge snap zones: which third of the pane, and which way it would split. */
+  const snapZones: {
+    edge: "top" | "right" | "bottom" | "left";
+    box: string;
+  }[] = [
+    { edge: "top", box: "absolute top-0 left-0 right-0 h-1/3" },
+    { edge: "bottom", box: "absolute bottom-0 left-0 right-0 h-1/3" },
+    { edge: "left", box: "absolute top-0 left-0 bottom-0 w-1/3" },
+    { edge: "right", box: "absolute top-0 right-0 bottom-0 w-1/3" },
+  ];
+
   return (
     <div
       ref={containerRef}
-      className={`w-full h-full flex flex-col border ${
-        selected ? "ring-2 ring-indigo-500/70 border-white/30" : "border-white/20"
-      } transition-shadow relative group cursor-grab active:cursor-grabbing`}
+      className={`relative flex h-full w-full flex-col border transition-colors duration-150 group cursor-grab active:cursor-grabbing ${
+        selected ? "border-signal bg-signal/10" : "border-rule bg-board/45 hover:bg-board"
+      }`}
       draggable
       onDragStart={(e) => {
         // Check if drag started from a gutter or rename area
@@ -140,140 +154,126 @@ export default function LeafView({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-        >
-      {/* Edge snap drop zones - visual indicators */}
-      {dragOverEdge === "top" && (
-        <div className="absolute top-0 left-0 right-0 h-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
+    >
+      {/* Edge snap drop zones — where in the pane the dragged region would land */}
+      {snapZones.map((zone) =>
+        dragOverEdge === zone.edge ? (
+          <div
+            key={zone.edge}
+            className={`${zone.box} z-40 border-2 border-dashed border-signal bg-signal/10 pointer-events-none`}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="border border-signal bg-signal px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-signal-ink">
+                Split here
+              </span>
+            </div>
           </div>
-        </div>
-      )}
-      {dragOverEdge === "bottom" && (
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
-          </div>
-        </div>
-      )}
-      {dragOverEdge === "left" && (
-        <div className="absolute top-0 left-0 bottom-0 w-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
-          </div>
-        </div>
-      )}
-      {dragOverEdge === "right" && (
-        <div className="absolute top-0 right-0 bottom-0 w-1/3 bg-indigo-500/30 border-2 border-indigo-400 border-dashed z-40 pointer-events-none">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">Split Here</span>
-          </div>
-        </div>
+        ) : null
       )}
 
       {/* Gutters for splitting */}
       {onSplit &&
         [
-          {
-        key: "top",
-        className: "absolute top-0 left-0 right-0 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
-        orientation: "col" as Orientation,
-        style: {},
-        title: "Split horizontally (stack)",
-        buttonClass: "px-2 py-0",
-          },
-          {
-        key: "right",
-        className: "absolute top-0 right-0 bottom-0 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
-        orientation: "row" as Orientation,
-        style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
-        title: "Split vertically (side-by-side)",
-        buttonClass: "px-2 py-0 writing-mode-vertical",
-          },
-          {
-        key: "bottom",
-        className: "absolute bottom-0 left-0 right-0 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
-        orientation: "col" as Orientation,
-        style: {},
-        title: "Split horizontally (stack)",
-        buttonClass: "px-2 py-0",
-          },
-          {
-        key: "left",
-        className: "absolute top-0 left-0 bottom-0 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10",
-        orientation: "row" as Orientation,
-        style: { writingMode: "vertical-rl" as React.CSSProperties['writingMode'] },
-        title: "Split vertically (side-by-side)",
-        buttonClass: "px-2 py-0 writing-mode-vertical",
-          },
+          { key: "top", className: "absolute top-0 left-0 right-0 h-8", orientation: "col" as Orientation, title: "Split horizontally (stack)" },
+          { key: "right", className: "absolute top-0 right-0 bottom-0 w-8", orientation: "row" as Orientation, title: "Split vertically (side-by-side)" },
+          { key: "bottom", className: "absolute bottom-0 left-0 right-0 h-8", orientation: "col" as Orientation, title: "Split horizontally (stack)" },
+          { key: "left", className: "absolute top-0 left-0 bottom-0 w-8", orientation: "row" as Orientation, title: "Split vertically (side-by-side)" },
         ].map((gutter) => (
           <div
-        key={gutter.key}
-        className={gutter.className}
-        onClick={(e) => e.stopPropagation()}
+            key={gutter.key}
+            className={`${gutter.className} z-10 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100`}
+            onClick={(e) => e.stopPropagation()}
           >
-        <button
-          type="button"
-          className={`gutter-button ${gutter.buttonClass} bg-gray-300/10 hover:bg-gray-500/40 text-white text-[15px] font-medium rounded-md shadow-lg backdrop-blur-sm border border-white/30 transition-all`}
-          style={gutter.style}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSplit(gutter.orientation);
-          }}
-          title={gutter.title}
-        >
-          +
-        </button>
+            <button
+              type="button"
+              className="gutter-button inline-flex h-5 w-5 items-center justify-center border border-rule bg-sheet/90 text-mute transition-colors duration-150 hover:border-signal hover:text-signal"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSplit(gutter.orientation);
+              }}
+              title={gutter.title}
+              aria-label={gutter.title}
+            >
+              <svg
+                viewBox="0 0 12 12"
+                className="h-2.5 w-2.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
+                <path d="M6 1.5v9M1.5 6h9" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
         ))}
 
-      <div
-        className="flex-1 flex items-center justify-center font-semibold text-white text-xs relative rename-area"
-        style={{ background: `linear-gradient(135deg, ${leaf.color} 0%, ${leaf.color}CC 60%)` }}
-      >
-        {/* Delete button - appears on hover */}
+      <div className="rename-area relative flex flex-1 items-start justify-start overflow-hidden p-1.5 sm:p-3">
+        {/* Delete button — appears on hover, kept clear of the label and the gutters */}
         {onDelete && (
           <button
             type="button"
-            className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 rounded-full cursor-pointer transition-all text-[16px] leading-none text-white font-bold opacity-0 group-hover:opacity-100 hover:scale-110 shadow-lg z-30"
+            className="absolute bottom-1.5 right-1.5 z-30 inline-flex h-5 w-5 items-center justify-center border border-rule bg-sheet/90 text-faint opacity-0 transition-all duration-150 hover:border-signal hover:text-signal group-hover:opacity-100"
             aria-label="Delete pane"
             title="Delete pane"
-            style={{ backgroundColor: leaf.color }}
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
           >
-            ×
+            <svg
+              viewBox="0 0 12 12"
+              className="h-2.5 w-2.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <path d="M3 3l6 6M9 3l-6 6" strokeLinecap="round" />
+            </svg>
           </button>
         )}
 
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleSaveEdit}
-            onKeyDown={handleKeyDown}
-            className="bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-semibold text-center outline-none border-2 border-white/50 focus:border-white z-20"
-            style={{ minWidth: '60px', maxWidth: '120px' }}
-            onClick={(e) => e.stopPropagation()}
+        <span className="relative flex w-full min-w-0 items-baseline gap-1.5 overflow-hidden">
+          {/* The pane's identity colour, kept as a legend key rather than a slab fill */}
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 shrink-0 translate-y-px border border-rule-2"
+            style={{ backgroundColor: leaf.color }}
           />
-        ) : (
-          <span 
-            className="select-none cursor-pointer px-2 py-1 rounded hover:bg-white/20 transition-colors z-20" 
-            title="Click to rename"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onRename) {
-                handleStartEdit();
-              }
-            }}
-          >
-            {leaf.label}
+
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleSaveEdit}
+              onKeyDown={handleKeyDown}
+              className="z-20 min-w-[60px] max-w-[140px] border border-signal bg-well px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-ink outline-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <span
+              className={`min-w-0 cursor-pointer truncate font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-150 ${
+                selected ? "text-signal" : "text-mute"
+              }`}
+              title="Click to rename"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onRename) {
+                  handleStartEdit();
+                }
+              }}
+            >
+              {leaf.label}
+            </span>
+          )}
+
+          <span className="shrink-0 font-mono text-[10px] tabular-nums text-faint">
+            {Math.round(ratio * 100)}%
           </span>
-        )}
+        </span>
       </div>
     </div>
   );

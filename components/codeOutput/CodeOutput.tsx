@@ -8,18 +8,34 @@ import { useToast } from "@/components/ui/Toast";
 import Card, { CardHeader, CardContent, CardTitle } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import { toJsonSpec, toPrompt } from "@/lib/layoutSpec";
+import { CropMarks } from "@/components/ui/sheet";
+
+/* Monochrome syntax theme: the palette carries one accent, so it is spent on the
+   strings — which in a layout export are the flex ratios, i.e. the values you are
+   actually reading the file to find. */
+const highlight = {
+  tag: (text: string) => `<span style="color: var(--lp-ink)">${text}</span>`,
+  attr: (text: string) => `<span style="color: var(--lp-mute)">${text}</span>`,
+  string: (text: string) => `<span style="color: var(--lp-signal)">${text}</span>`,
+  comment: (text: string) => `<span style="color: var(--lp-faint); font-style: italic">${text}</span>`,
+};
+
+const TABS = [
+  { id: "jsx", label: "JSX + Tailwind", file: "component.jsx" },
+  { id: "html", label: "HTML + CSS", file: "layout.html" },
+  { id: "json", label: "JSON spec", file: "layout.json" },
+  { id: "prompt", label: "LLM prompt", file: "layout-prompt.txt" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
+/** Tabs that render verbatim text — no syntax markup, and copy must not strip them. */
+const PLAIN_TABS: TabId[] = ["json", "prompt"];
 
 export default function CodeOutput() {
   const root = useSelector((s: RootState) => s.layout.root);
-  const [activeTab, setActiveTab] = useState<"jsx" | "html">("jsx");
-
-  // Syntax highlighting helper
-  const highlight = {
-    tag: (text: string) => `<span style="color: #89b4fa">${text}</span>`,
-    attr: (text: string) => `<span style="color: #f9e2af">${text}</span>`,
-    string: (text: string) => `<span style="color: #a6e3a1">${text}</span>`,
-    comment: (text: string) => `<span style="color: #6c7086; font-style: italic">${text}</span>`,
-  };
+  const [activeTab, setActiveTab] = useState<TabId>("jsx");
 
   // Generate JSX + Tailwind code with syntax highlighting
   const generateJSX = (node: NodeModel, depth = 0): string => {
@@ -79,18 +95,35 @@ ${indent}${highlight.tag("&lt;/div&gt;")}`;
   const jsxCode = generateJSX(root);
   const htmlCode = generateHTML(root);
 
+  /* The same serialisers the landing page uses, so the prompt and the spec the
+     tool hands out can never drift from the tree it is showing. */
+  const output =
+    activeTab === "jsx"
+      ? jsxCode
+      : activeTab === "html"
+        ? htmlCode
+        : activeTab === "json"
+          ? toJsonSpec(root)
+          : toPrompt(root);
+  const isPlain = PLAIN_TABS.includes(activeTab);
+  const activeTabMeta = TABS.find((tab) => tab.id === activeTab) ?? TABS[0];
+
   const { push } = useToast();
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  const copyToClipboard = (text: string) => {
-    // Strip HTML tags for clipboard
-    const plainText = text.replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    navigator.clipboard.writeText(plainText).then(() => {
+  const copyToClipboard = () => {
+    // The highlighted tabs carry HTML markup that has to be stripped. The plain
+    // tabs are verbatim and must be copied as-is — a prompt contains "<ratio>",
+    // which the tag-stripping regex would happily delete.
+    const text = isPlain
+      ? output
+      : output.replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       push({ 
-        title: "Code copied!", 
-        description: `${activeTab === "jsx" ? "JSX + Tailwind" : "HTML + CSS"} snippet copied to clipboard`, 
+        title: "Copied to clipboard", 
+        description: `${activeTabMeta.label} copied`, 
         variant: "success", 
         duration: 2000 
       });
@@ -102,62 +135,77 @@ ${indent}${highlight.tag("&lt;/div&gt;")}`;
   return (
     <div className="w-full max-w-5xl">
       <Card>
+        <CropMarks />
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <CardTitle className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-3.5 w-3.5 text-signal"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
-                Generated Code
+                Generated code
               </CardTitle>
               <Badge variant="success" size="sm">Real-time</Badge>
             </div>
-            
-            <div className="flex gap-2">
-              <button
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === "jsx"
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
-                }`}
-                onClick={() => setActiveTab("jsx")}
-              >
-                JSX + Tailwind
-              </button>
-              <button
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === "html"
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
-                }`}
-                onClick={() => setActiveTab("html")}
-              >
-                HTML + CSS
-              </button>
+
+            <div role="tablist" aria-label="Export format" className="flex flex-wrap items-center gap-4">
+              {TABS.map((tab) => {
+                const selected = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    role="tab"
+                    type="button"
+                    aria-selected={selected}
+                    tabIndex={selected ? 0 : -1}
+                    className={`relative border-b-2 pb-0.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
+                      selected
+                        ? "border-signal text-ink"
+                        : "border-transparent text-faint hover:text-mute"
+                    }`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </CardHeader>
 
         <CardContent>
-          <div className="relative">
-            <div className="absolute top-0 right-0 z-10">
+          <div className="border border-rule bg-well">
+            <div className="flex items-center gap-3 border-b border-rule px-3 py-2">
+              <span aria-hidden="true" className="flex gap-1">
+                <span className="h-1.5 w-1.5 bg-rule-2" />
+                <span className="h-1.5 w-1.5 bg-rule-2" />
+              </span>
+              <span className="font-mono text-[11px] tracking-[0.08em] text-faint">
+                {activeTabMeta.file}
+              </span>
               <Button
+                className="ml-auto"
                 variant={copied ? "secondary" : "outline"}
                 size="sm"
-                onClick={() => copyToClipboard(activeTab === "jsx" ? jsxCode : htmlCode)}
+                onClick={copyToClipboard}
                 disabled={copied}
               >
                 {copied ? (
                   <>
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Copied!
+                    Copied
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     Copy
@@ -165,28 +213,14 @@ ${indent}${highlight.tag("&lt;/div&gt;")}`;
                 )}
               </Button>
             </div>
-            
-            <div className="bg-[#1e1e2e] backdrop-blur-sm rounded-lg border border-[#313244] overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#181825] border-b border-[#313244]">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 bg-[#f38ba8] rounded-full"></div>
-                  <div className="w-3 h-3 bg-[#f9e2af] rounded-full"></div>
-                  <div className="w-3 h-3 bg-[#a6e3a1] rounded-full"></div>
-                </div>
-                <span className="ml-2 text-[#cdd6f4] text-xs font-mono">
-                  {activeTab === "jsx" ? "component.jsx" : "layout.html"}
-                </span>
-              </div>
-              
-              <pre className="custom-scrollbar text-[#cdd6f4] p-4 overflow-x-auto max-h-96 overflow-y-auto text-sm leading-relaxed font-mono">
-                <code 
-                  className="language-jsx"
-                  dangerouslySetInnerHTML={{ 
-                    __html: activeTab === "jsx" ? jsxCode : htmlCode 
-                  }}
-                />
-              </pre>
-            </div>
+
+            <pre className="custom-scrollbar max-h-96 overflow-x-auto overflow-y-auto p-4 font-mono text-[12px] leading-[1.7] text-mute">
+              {isPlain ? (
+                <code>{output}</code>
+              ) : (
+                <code className="language-jsx" dangerouslySetInnerHTML={{ __html: output }} />
+              )}
+            </pre>
           </div>
         </CardContent>
       </Card>

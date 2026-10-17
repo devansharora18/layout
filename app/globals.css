@@ -1,51 +1,277 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   Layout — design system
 
+   Two surfaces share this file and one palette:
+     · the builder  (/home) — always ink, never themed
+     · the sheet    (/)     — the landing page, themed to paper by
+                              prefers-color-scheme or <html data-theme>
 
+   The palette lives on :root so both surfaces can use it; only the sheet is
+   allowed to override it (light mode). Values are surfaced to Tailwind as
+   utilities (text-ink, bg-board, border-rule…) through @theme inline.
+   ========================================================================== */
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+@theme inline {
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, sans-serif;
+  --font-body: var(--font-plex-sans), "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-sheet: var(--lp-sheet);
+  --color-board: var(--lp-board);
+  --color-well: var(--lp-well);
+  --color-ink: var(--lp-ink);
+  --color-mute: var(--lp-mute);
+  --color-faint: var(--lp-faint);
+  --color-rule: var(--lp-rule);
+  --color-rule-2: var(--lp-rule-2);
+  --color-signal: var(--lp-signal);
+  --color-signal-ink: var(--lp-signal-ink);
 }
 
+:root {
+  --background: #000000;
+  --foreground: #fafafa;
+  --muted: #a1a1a1;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #ffffff;
+
+  /* Ink. Scoped to :root, so the builder is always dark and the sheet opts out. */
+  --lp-sheet: #08090a;
+  --lp-board: #0d0e10;
+  --lp-well: #060708;
+  --lp-ink: #f4f3ef;
+  --lp-mute: #a8a7a1;
+  --lp-faint: #85847e;
+  --lp-rule: rgba(244, 243, 239, 0.14);
+  --lp-rule-2: rgba(244, 243, 239, 0.34);
+  --lp-signal: #ff4d00;
+  --lp-signal-ink: #0a0b0c;
+  --lp-glow: rgba(255, 77, 0, 0.1);
+  --lp-wash: rgba(255, 255, 255, 0.03);
+  --lp-grain: 0.25;
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+/* The builder's surface: ink, a faint 64px drafting grid, a low warm glow along
+   the top edge. Same palette as the sheet, no grain — this one is a workbench. */
+.bg-canvas {
+  background-color: var(--lp-sheet);
+  background-image:
+    radial-gradient(70% 50% at 50% 0%, var(--lp-glow), transparent 70%),
+    linear-gradient(to right, var(--lp-rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--lp-rule) 1px, transparent 1px);
+  background-size: 100% 100%, 64px 64px, 64px 64px;
+  background-position: center top, center, center;
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbars — neutral grey so a single rule reads correctly on both the ink
+   builder and the paper sheet. Tabular thumbs, floating via transparent border.
+   -------------------------------------------------------------------------- */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(129 140 248 / 55%) transparent; /* indigo-400ish over transparent */
+  scrollbar-color: rgba(127, 127, 127, 0.5) transparent;
 }
 
-/* WebKit */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: linear-gradient(135deg, rgba(255 255 255 / 4%), rgba(255 255 255 / 2%));
-  border-radius: 20px;
-  margin: 2px; /* create a little breathing room */
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(99 102 241 / 65%), rgba(167 139 250 / 65%));
+  background: rgba(127, 127, 127, 0.45);
+  border: 2px solid transparent;
+  background-clip: content-box;
   border-radius: 999px;
-  border: 2px solid rgba(255 255 255 / 20%);
-  box-shadow: 0 2px 6px -2px rgba(0 0 0 / 60%), 0 0 0 1px rgba(255 255 255 / 8%) inset;
-  transition: background .25s ease, box-shadow .25s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(99 102 241 / 85%), rgba(167 139 250 / 85%));
-  box-shadow: 0 4px 10px -2px rgba(0 0 0 / 65%), 0 0 0 1px rgba(255 255 255 / 15%) inset;
+  background: rgba(127, 127, 127, 0.8);
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-
 html {
   scroll-behavior: smooth;
+}
+
+/* ============================================================================
+   The sheet — landing page surface
+   ========================================================================== */
+
+.sheet {
+  position: relative;
+  isolation: isolate;
+  color: var(--lp-ink);
+  background-color: var(--lp-sheet);
+  font-family: var(--font-body), "IBM Plex Sans", ui-sans-serif, sans-serif;
+  background-image:
+    radial-gradient(85% 55% at 50% -10%, var(--lp-glow), transparent 60%),
+    linear-gradient(to bottom, var(--lp-wash), transparent 34rem);
+  background-repeat: no-repeat;
+}
+
+/* prefers-color-scheme drives the default surface; <html data-theme> overrides it.
+   The two light blocks below are intentionally identical — CSS cannot share one
+   declaration block between a media query and a selector list. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .sheet {
+    --lp-sheet: #f2f0ea;
+    --lp-board: #fbfaf6;
+    --lp-well: #e8e6df;
+    --lp-ink: #12130f;
+    --lp-mute: #55564e;
+    --lp-faint: #6f7069;
+    --lp-rule: rgba(18, 19, 15, 0.16);
+    --lp-rule-2: rgba(18, 19, 15, 0.36);
+    --lp-signal: #c43a00;
+    --lp-signal-ink: #ffffff;
+    --lp-glow: rgba(196, 58, 0, 0.07);
+    --lp-wash: rgba(18, 19, 15, 0.035);
+    --lp-grain: 0.17;
+  }
+}
+
+:root[data-theme="light"] .sheet {
+  --lp-sheet: #f2f0ea;
+  --lp-board: #fbfaf6;
+  --lp-well: #e8e6df;
+  --lp-ink: #12130f;
+  --lp-mute: #55564e;
+  --lp-faint: #6f7069;
+  --lp-rule: rgba(18, 19, 15, 0.16);
+  --lp-rule-2: rgba(18, 19, 15, 0.36);
+  --lp-signal: #c43a00;
+  --lp-signal-ink: #ffffff;
+  --lp-glow: rgba(196, 58, 0, 0.07);
+  --lp-wash: rgba(18, 19, 15, 0.035);
+  --lp-grain: 0.17;
+}
+
+/* Paper grain, fixed so it doesn't swim while scrolling. */
+.sheet::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--lp-grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Twelve hairline column guides, pinned to the same 1400px measure as the content. */
+.sheet-guides {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.sheet-guides > div {
+  width: 100%;
+  max-width: 1400px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--lp-rule) 0,
+    var(--lp-rule) 1px,
+    transparent 1px,
+    transparent calc(100% / 12)
+  );
+}
+
+/* Outline headline. Below 768px it stays solid — hollow counters go spindly at 41px —
+   and where -webkit-text-stroke is unsupported it keeps the solid fill, so the words
+   never disappear. */
+.outline-type {
+  color: var(--lp-mute);
+}
+@supports (-webkit-text-stroke: 1px black) {
+  @media (min-width: 768px) {
+    .outline-type {
+      color: transparent;
+      -webkit-text-stroke: 1.4px var(--lp-ink);
+    }
+  }
+}
+
+/* Measure rail: a hairline with a tick every 48px (6 × 8px). */
+.tick-rail {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--lp-rule-2) 0,
+    var(--lp-rule-2) 1px,
+    transparent 1px,
+    transparent 48px
+  );
+  background-position: bottom left;
+  background-size: 100% 6px;
+  background-repeat: no-repeat;
+}
+
+/* Diagonal hatch, reserved for "not built yet". */
+.hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--lp-rule) 0,
+    var(--lp-rule) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+}
+
+/* Selection and focus are declared once for both surfaces — the builder is part of
+   the system, so it gets the accent selection and the signal focus ring too. */
+::selection {
+  background: var(--lp-signal);
+  color: var(--lp-signal-ink);
+}
+
+/* One shared entrance for content that swaps in place — tab panels, menus, the
+   import drawer. The only motion on the page besides colour transitions. */
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sheet-in {
+  animation: sheet-in 180ms ease-out both;
+}
+
+:focus-visible {
+  outline: 2px solid var(--lp-signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .sheet *,
+  .sheet *::before,
+  .sheet *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

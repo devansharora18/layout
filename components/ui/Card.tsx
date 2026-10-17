@@ -6,10 +6,10 @@ interface CardProps {
 
 export default function Card({ children, className = "", hover = false }: CardProps) {
   return (
-    <div 
+    <div
       className={`
-        bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg
-        ${hover ? "hover:bg-white/15 hover:scale-105 hover:shadow-xl transition-all duration-300" : ""}
+        relative border border-rule bg-sheet/60
+        ${hover ? "transition-colors duration-150 hover:border-rule-2 hover:bg-board" : ""}
         ${className}
       `}
     >
@@ -19,13 +19,17 @@ export default function Card({ children, className = "", hover = false }: CardPr
 }
 
 export function CardHeader({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`p-6 pb-3 ${className}`}>{children}</div>;
+  return <div className={`border-b border-rule px-4 py-3 sm:px-5 ${className}`}>{children}</div>;
 }
 
 export function CardContent({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`px-6 pb-6 ${className}`}>{children}</div>;
+  return <div className={`px-4 py-4 sm:px-5 sm:py-5 ${className}`}>{children}</div>;
 }
 
 export function CardTitle({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <h3 className={`text-xl font-semibold text-white mb-2 ${className}`}>{children}</h3>;
+  return (
+    <h3 className={`font-display text-base font-bold tracking-[-0.025em] text-ink ${className}`}>
+      {children}
+    </h3>
+  );
 }

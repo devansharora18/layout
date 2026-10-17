@@ -171,20 +171,32 @@ export default function Canvas() {
   // Render
   return (
     <div className="w-full max-w-5xl h-[80vh] flex flex-col gap-4">
-      <div className="flex-1 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 overflow-hidden shadow-inner relative">
-        {/* Reset button - always visible at top-left */}
+      <div className="flex-1 relative overflow-hidden border border-rule bg-well">
+        {/* Reset — top-right, clear of the pane labels at top-left */}
         <button
-          className="absolute top-2 left-2 p-1 rounded-lg bg-red-600/80 hover:bg-red-500 text-white text-sm font-medium backdrop-blur-sm border border-white/30 transition-all z-50 px-2"
+          className="absolute right-2 top-2 z-50 inline-flex items-center gap-1.5 border border-rule bg-sheet/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute backdrop-blur-sm transition-colors duration-150 hover:border-rule-2 hover:text-ink"
           onClick={reset}
           title="Reset layout"
           aria-label="Reset layout"
         >
-          ↻
+          <svg
+            viewBox="0 0 12 12"
+            className="h-2.5 w-2.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+          >
+            <path d="M10.2 6a4.2 4.2 0 1 1-1.4-3.1" strokeLinecap="round" />
+            <path d="M10.4 1.4v2.6H7.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Reset
         </button>
 
         {isLeaf(root) ? (
           <LeafView
             leaf={root}
+            ratio={1}
             selected={selectedLeafId === root.id}
             onSelect={() => dispatch(selectLeafAction(root.id))}
             onDragStart={() => onLeafDragStart(root.id)}
@@ -205,6 +217,7 @@ export default function Canvas() {
             onLeafDrop={onLeafDrop}
             onLeafDropEdge={onLeafDropEdge}
             onResetSplit={(splitId) => dispatch(resetSplitAction({ splitId }))}
+            onResizeSplit={(splitId, sizes) => dispatch(setSplitSizesAction({ splitId, sizes }))}
             onRenameLeaf={(leafId, newLabel) => dispatch(renameLeafAction({ leafId, newLabel }))}
             onDeleteLeaf={(leafId) => dispatch(removeLeafAction({ leafId }))}
             onSplitLeaf={handleSplit}

@@ -1,40 +1,70 @@
+import Link from "next/link";
 import Canvas from "@/components/canvas/Canvas";
 import CodeOutput from "@/components/codeOutput/CodeOutput";
 import Navigation from "@/components/ui/Navigation";
+import { MonoLabel } from "@/components/ui/sheet";
+
+const REPO = "https://github.com/devansharora18/layout";
+
+const LINKS = [
+  { label: "Home", href: "/", external: false },
+  { label: "Source", href: REPO, external: true },
+  { label: "Issues", href: `${REPO}/issues`, external: true },
+  { label: "License", href: `${REPO}/blob/main/LICENSE`, external: true },
+];
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="bg-canvas relative min-h-screen">
       <Navigation />
 
-      <main className="relative pt-16 min-h-screen flex flex-col">
-        <div className="container mx-auto px-4 py-8 flex flex-col items-center gap-8 w-full flex-1">
-          {/* <header className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Layout Builder
+      <main className="relative pt-14">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-10">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b border-rule pb-4">
+            <MonoLabel className="translate-y-[-0.15em]">Fig. 01 — canvas</MonoLabel>
+            <h1 className="font-display text-[clamp(1.5rem,2.8vw,2.25rem)] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink">
+              Builder
             </h1>
-            <p className="text-gray-300/80 text-lg max-w-2xl mx-auto">
-              Create responsive layouts visually. Split, resize, and rearrange panes to build your perfect layout.
+            <p className="ml-auto hidden max-w-[42ch] text-sm leading-relaxed text-mute lg:block">
+              Split a pane, drag the ratios, copy the output. Every format on this page is
+              generated from the one binary tree you see above.
             </p>
-          </header> */}
+          </div>
 
-          <section className="flex flex-col items-center w-full gap-8 flex-1">
+          <section className="flex w-full flex-col items-center gap-8">
             <Canvas />
             <CodeOutput />
           </section>
-          <footer>
-            <div className="flex items-center space-x-2 text-sm text-gray-400">
-                <span>A</span>
-                <a
-                  href="https://devansharora.in"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-400 hover:text-purple-300 transition-colors"
-                >
-                  Devansh Arora
-                </a>
-                <span>Production</span>
-              </div>
+
+          <footer className="border-t border-rule pt-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                {LINKS.map((link) => (
+                  <li key={link.label}>
+                    {link.external ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[11px] uppercase tracking-[0.14em] text-mute transition-colors duration-150 hover:text-ink"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="font-mono text-[11px] uppercase tracking-[0.14em] text-mute transition-colors duration-150 hover:text-ink"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p className="font-mono text-[11px] tracking-[0.08em] text-faint">
+                The tree is kept in localStorage
+              </p>
+            </div>
           </footer>
         </div>
       </main>

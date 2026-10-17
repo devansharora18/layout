@@ -9,21 +9,24 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
+/* Focus is handled by the app-wide :focus-visible rule in globals.css — the sheet's
+   signal outline — so the variants deliberately carry no ring utilities. */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "primary", size = "md", children, href, ...props }, ref) => {
-    const baseClasses = "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed";
-    
+    const baseClasses =
+      "inline-flex items-center justify-center border font-mono uppercase tracking-[0.14em] transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40";
+
     const variants = {
-      primary: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] focus:ring-indigo-500",
-      secondary: "bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 hover:border-white/30 hover:scale-[1.02] focus:ring-white/50",
-      outline: "border border-white/30 text-white hover:bg-white/10 hover:border-white/50 focus:ring-white/30",
-      ghost: "text-white hover:bg-white/10 focus:ring-white/30"
+      primary: "border-signal bg-signal text-signal-ink hover:opacity-85",
+      secondary: "border-rule-2 bg-board text-ink hover:border-ink",
+      outline: "border-rule text-mute hover:border-rule-2 hover:text-ink",
+      ghost: "border-transparent text-mute hover:text-ink",
     };
 
     const sizes = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base"
+      sm: "px-2.5 py-1 text-[11px]",
+      md: "px-3 py-1.5 text-[11px]",
+      lg: "px-4 py-2.5 text-[12px]",
     };
 
     const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;

@@ -35,13 +35,13 @@ export function isLeaf(n: NodeModel): n is LeafNode {
 }
 
 const palette = [
-  "#60a5fa",
-  "#34d399",
-  "#f472b6",
-  "#f59e0b",
-  "#a78bfa",
-  "#f87171",
-  "#22d3ee",
+  "#fafafa",
+  "#d4d4d4",
+  "#a3a3a3",
+  "#737373",
+  "#525252",
+  "#e5e5e5",
+  "#404040",
 ];
 function randomColor() {
   return palette[Math.floor(Math.random() * palette.length)];
